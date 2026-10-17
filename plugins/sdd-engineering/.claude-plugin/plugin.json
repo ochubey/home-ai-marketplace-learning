@@ -1,6 +1,6 @@
 {
   "name": "sdd-engineering",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A spec-driven development workflow with agents for specs, plans, implementation and verification, plus skills to run a plan, review a run and keep INSIGHTS.md notes.",
   "author": {
     "name": "AI Engineering (ochubey)"

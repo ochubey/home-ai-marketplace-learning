@@ -159,3 +159,44 @@ describe('sdd-engineering docs (AC-49, AC-51)', () => {
     }
   });
 });
+
+describe('sdd-engineering 1.1.0: requirements coverage', () => {
+  const spec = () => read(agentPath('spec-creator'));
+  it('manifest version is 1.1.0 and the changelog has a 1.1.0 entry', () => {
+    assert.equal(JSON.parse(read(path.join(dir, '.claude-plugin', 'plugin.json'))).version, '1.1.0');
+    const c = read(path.join(dir, 'CHANGELOG.md'));
+    assert.match(c, /^## 1\.1\.0\b/m);
+    assert.match(c, /^## 1\.0\.0\b/m);
+  });
+  it('spec template has a Requirements coverage section after the acceptance criteria', () => {
+    const t = spec();
+    const ac = t.indexOf('## Acceptance criteria (EARS)');
+    const cov = t.indexOf('## Requirements coverage');
+    assert.ok(ac >= 0 && cov > ac, 'section order');
+    assert.ok(cov < t.indexOf('## Edge cases'), 'coverage precedes edge cases');
+    assert.match(t, /requirement \| source \| covering AC-IDs/i);
+  });
+  it('rules require an AC per mandatory requirement and raise untestable ones', () => {
+    const t = spec();
+    assert.match(t, /every mandatory requirement[^\n]*at least one AC/i);
+    assert.match(t, /requirement with no AC is a defect/i);
+    assert.match(t, /cannot be tested[^\n]*\[NEEDS CLARIFICATION\][^\n]*instead of being dropped/i);
+  });
+  it('self-check confirms the coverage table', () => {
+    const t = spec();
+    const self = t.slice(t.indexOf('## Self-check before returning'), t.indexOf('## Research'));
+    assert.match(self, /Requirements coverage/);
+    assert.match(self, /every row has an AC/i);
+  });
+  it('eval SDD-5 exists, is indexed, and checks the coverage table', () => {
+    const e = path.join(dir, 'evals', 'sdd-5-requirements-coverage');
+    for (const f of ['prompt.md', 'setup.md', path.join('graders', 'criteria.md')]) {
+      assert.ok(existsSync(path.join(e, f)), f);
+    }
+    const idx = read(path.join(dir, 'evals', 'README.md'));
+    assert.match(idx, /\| SDD-5 \| positive \|/);
+    assert.ok(idx.includes('sdd-5-requirements-coverage/setup.md'));
+    assert.match(read(path.join(e, 'graders', 'criteria.md')), /Requirements coverage/);
+    assert.match(read(path.join(e, 'prompt.md')), /must|shall|required|has to/i);
+  });
+});
