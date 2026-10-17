@@ -72,7 +72,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first, then [docs/PLUGIN-GUIDELINES.md](
 | `.gitignore` | Local-only files that must never be committed (`.env`, editor and OS files, local settings). |
 | `README.md` | This file: consumer commands and the layout. |
 | `CONTRIBUTING.md` | Plugin structure, manifest fields, dependency rules, validator usage, PR checklist. |
-| `docs/` | `PLUGIN-GUIDELINES.md`, `SECURITY.md`, `RELEASES.md`, and `temp/` for temporary research notes. `SITE-SPEC.md` describes the catalog site for maintainers; `COST-BASELINE.md` arrives in a later phase. |
+| `docs/` | `PLUGIN-GUIDELINES.md`, `SECURITY.md`, `RELEASES.md`, and `temp/` for temporary research notes. `SITE-SPEC.md` describes the catalog site for maintainers; `COST-BASELINE.md` records the cost measurement and its limits (harness in `scripts/cost/`). |
 | `plugins/` | One folder per plugin: `plugins/<name>/`. Today: `engineering-paved-path`, `research-tools`, `architecture-review`, `sdd-engineering`. |
 | `site/` | The catalog site (Vite, React, TypeScript): search, detail pages and release feed built from the repository files. Its packages are pinned in `site/package.json` and `site/package-lock.json`. See [docs/SITE-SPEC.md](docs/SITE-SPEC.md). |
 | `scripts/` | The dependency-free validator (`validate-marketplace.mjs`, `lib/`) and `validate-allowlist.json`. |

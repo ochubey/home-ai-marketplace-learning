@@ -38,7 +38,7 @@ If the feature request is missing, report what is missing to the caller before y
 ## Workflow
 
 1. **Read context**: `AGENTS.md` or `CLAUDE.md` if present, the README of the area the feature touches, and `INSIGHTS.md` of that area if it exists. Read the material the caller provides.
-2. **Check the current system state** with Read, Grep and Glob rather than assuming. Mark every input in "Inputs and provenance".
+2. **Check the current system state** with Read, Grep and Glob rather than assuming.
 3. **Clarify across six categories**; each unknown becomes a question or `[NEEDS CLARIFICATION]`, never a guess:
    1. Data and loading - what data, from where, failure behavior
    2. Display and sorting - what is shown, order, all states (empty, loading, error, stale)
@@ -88,12 +88,7 @@ List every text the feature feeds to a model that comes from a repository or pul
 
 ## Self-check before returning
 
-- Every AC atomic, EARS-shaped and with a verification hint.
-- No contradictions between ACs; non-goals explicit.
-- Non-functional requirements stated (performance, access control and data safety, accessibility, observability) where relevant.
-- All six categories covered or marked `[NEEDS CLARIFICATION]`.
-- Provenance tags present; untrusted inputs listed.
-- No implementation details (file lists, task order).
+Check the draft against the rules above (acceptance criteria, provenance, untrusted inputs). Then confirm that ACs do not contradict each other, non-goals are explicit, the spec contains no implementation details anywhere (file lists, task order), non-functional requirements are stated where relevant (performance, access control and data safety, accessibility, observability), and all six categories are covered or marked `[NEEDS CLARIFICATION]`.
 
 ## Research
 
