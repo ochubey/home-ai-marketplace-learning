@@ -1,0 +1,45 @@
+/* Design tokens: dark default theme, light overrides. */
+:root {
+  color-scheme: dark;
+  --bg: #0b0c0f;
+  --surface: #101217;
+  --surface-2: #161920;
+  --hover: #1c2029;
+  --border: #23262f;
+  --border-strong: #6b7280;
+  --text: #e8eaef;
+  --dim: #98a0ae;
+  --accent: oklch(0.76 0.13 255);
+  --on-accent: #0b0c0f;
+  --focus: oklch(0.82 0.13 255);
+  --kind-plugin: oklch(0.78 0.13 255);
+  --kind-skill: oklch(0.78 0.13 158);
+  --kind-agent: oklch(0.78 0.13 305);
+  --kind-command: oklch(0.78 0.13 55);
+  --kind-hook: oklch(0.78 0.13 125);
+  --kind-mcp: oklch(0.78 0.13 20);
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --radius: 8px;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --hover: #eef0f4;
+  --border: #e2e5ea;
+  --border-strong: #6b7280;
+  --text: #161a20;
+  --dim: #5a626e;
+  --accent: oklch(0.48 0.17 255);
+  --on-accent: #ffffff;
+  --focus: oklch(0.48 0.17 255);
+  --kind-plugin: oklch(0.48 0.17 255);
+  --kind-skill: oklch(0.45 0.12 158);
+  --kind-agent: oklch(0.47 0.17 305);
+  --kind-command: oklch(0.48 0.11 55);
+  --kind-hook: oklch(0.47 0.11 125);
+  --kind-mcp: oklch(0.5 0.17 20);
+}
