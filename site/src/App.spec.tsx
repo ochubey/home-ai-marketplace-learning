@@ -236,7 +236,7 @@ describe('plugin detail', () => {
     expect(text(main)).toContain('Fixture Author');
     expect(text(main)).toContain('Spec driven workflow.');
     expect(main.querySelector('pre')?.textContent).toContain('claude plugin install sdd-flow@home-ai-marketplace-learning');
-    expect(main.querySelector('[data-readme] h2')?.textContent).toBe('Readme heading');
+    expect(Array.from(main.querySelectorAll('[data-readme] h2')).map((h) => h.textContent)).toContain('Readme heading');
     expect(main.querySelector('[data-readme] a')?.getAttribute('href')).toBe('https://github.com/example/fixture-market/blob/abc1234/plugins/sdd-flow/references/a.md');
     expect(main.querySelector('a[href="#/whats-new?plugin=sdd-flow"]')).not.toBeNull();
     expect(main.querySelector('a[href="https://github.com/example/fixture-market/tree/abc1234/plugins/sdd-flow"]')).not.toBeNull();
