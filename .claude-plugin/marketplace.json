@@ -1,0 +1,10 @@
+{
+  "name": "home-ai-marketplace-learning",
+  "owner": {
+    "name": "AI Engineering (ochubey)"
+  },
+  "metadata": {
+    "description": "Internal Claude Code plugin marketplace of the AI Engineering team."
+  },
+  "plugins": []
+}

@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "path": "docs/SECURITY.md",
+      "rule": "abs-path",
+      "contains": "/home/jdoe/projects/app",
+      "reason": "Documented example of a forbidden machine-specific path, using a fake user name."
+    }
+  ]
+}

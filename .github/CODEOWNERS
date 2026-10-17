@@ -1,0 +1,5 @@
+# Default owner for every path in the repository.
+* @ochubey
+
+# One line per plugin, after the default rule (the last matching rule wins):
+# /plugins/<name>/ @owner
