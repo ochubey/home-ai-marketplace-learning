@@ -8,7 +8,7 @@
   "dependencies": [
     {
       "name": "engineering-paved-path",
-      "marketplace": "home-ai-marketplace-learning",
+      "marketplace": "home-ai-marketplace-learning-stable",
       "version": "^1.0.0"
     }
   ]

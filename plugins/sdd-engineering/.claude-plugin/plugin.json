@@ -8,17 +8,17 @@
   "dependencies": [
     {
       "name": "engineering-paved-path",
-      "marketplace": "home-ai-marketplace-learning",
+      "marketplace": "home-ai-marketplace-learning-stable",
       "version": "^1.1.0"
     },
     {
       "name": "research-tools",
-      "marketplace": "home-ai-marketplace-learning",
+      "marketplace": "home-ai-marketplace-learning-stable",
       "version": "^1.0.0"
     },
     {
       "name": "architecture-review",
-      "marketplace": "home-ai-marketplace-learning",
+      "marketplace": "home-ai-marketplace-learning-stable",
       "version": "^1.0.0"
     }
   ]
