@@ -162,8 +162,7 @@ describe('sdd-engineering docs (AC-49, AC-51)', () => {
 
 describe('sdd-engineering 1.1.0: requirements coverage', () => {
   const spec = () => read(agentPath('spec-creator'));
-  it('manifest version is 1.1.0 and the changelog has a 1.1.0 entry', () => {
-    assert.equal(JSON.parse(read(path.join(dir, '.claude-plugin', 'plugin.json'))).version, '1.1.0');
+  it('the changelog has a 1.1.0 entry', () => {
     const c = read(path.join(dir, 'CHANGELOG.md'));
     assert.match(c, /^## 1\.1\.0\b/m);
     assert.match(c, /^## 1\.0\.0\b/m);
@@ -198,5 +197,55 @@ describe('sdd-engineering 1.1.0: requirements coverage', () => {
     assert.ok(idx.includes('sdd-5-requirements-coverage/setup.md'));
     assert.match(read(path.join(e, 'graders', 'criteria.md')), /Requirements coverage/);
     assert.match(read(path.join(e, 'prompt.md')), /must|shall|required|has to/i);
+  });
+});
+
+describe('sdd-engineering 1.1.1: closed questions', () => {
+  const spec = () => read(agentPath('spec-creator'));
+  it('manifest version is 1.1.1 and the changelog has a 1.1.1 entry above 1.1.0', () => {
+    assert.equal(JSON.parse(read(path.join(dir, '.claude-plugin', 'plugin.json'))).version, '1.1.1');
+    const c = read(path.join(dir, 'CHANGELOG.md'));
+    assert.match(c, /^## 1\.1\.1\b/m);
+    assert.ok(c.indexOf('## 1.1.1') < c.indexOf('## 1.1.0'));
+    assert.match(c.slice(c.indexOf('## 1.1.1'), c.indexOf('## 1.1.0')), /patch/i);
+  });
+  it('spec-creator decides closed doubts as assumptions with a reason, without a marker', () => {
+    const t = spec();
+    assert.match(t, /no open questions/i);
+    assert.match(t, /recommended default/i);
+    assert.match(t, /`Assumptions`/);
+    assert.match(t, /each (assumption )?with its reason/i);
+    assert.match(t, /no `\[NEEDS CLARIFICATION\]` marker/i);
+  });
+  it('the blocking-QUESTIONS rule and the genuine-unknown marker stay', () => {
+    const t = spec();
+    assert.match(t, /If answers change the spec materially, stop and return only a `QUESTIONS` list/);
+    assert.match(t, /genuine unknown/i);
+  });
+  it('the template and self-check mention assumptions and closed items', () => {
+    const t = spec();
+    assert.match(t, /## Open questions[^\n]*Assumptions/);
+    const self = t.slice(t.indexOf('## Self-check before returning'), t.indexOf('## Research'));
+    assert.match(self, /no `\[NEEDS CLARIFICATION\]` marker remains for items the caller closed/i);
+  });
+  it('eval SDD-6 exists, is indexed, and checks markers, assumption and ACs', () => {
+    const e = path.join(dir, 'evals', 'sdd-6-closed-questions');
+    for (const f of ['prompt.md', 'setup.md', path.join('graders', 'criteria.md')]) {
+      assert.ok(existsSync(path.join(e, f)), f);
+    }
+    const idx = read(path.join(dir, 'evals', 'README.md'));
+    assert.match(idx, /\| SDD-6 \| positive \|/);
+    assert.ok(idx.includes('sdd-6-closed-questions/setup.md'));
+    assert.match(idx, /six/i);
+    const g = read(path.join(e, 'graders', 'criteria.md'));
+    assert.match(g, /zero `\[NEEDS CLARIFICATION\]`/);
+    assert.match(g, /Assumptions/);
+    assert.match(read(path.join(e, 'prompt.md')), /no open questions/i);
+  });
+  it('README states 1.1.1 and six eval cases', () => {
+    const r = read(path.join(dir, 'README.md'));
+    assert.match(r, /Version 1\.1\.1\./);
+    assert.match(r, /## What is new in 1\.1\.1/);
+    assert.match(r, /six cases \(four positive, two negative\)/);
   });
 });

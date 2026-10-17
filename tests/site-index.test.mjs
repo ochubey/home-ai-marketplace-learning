@@ -549,9 +549,9 @@ describe('this repository', () => {
     assert.ok(sdd.dependencies.every((d) => d.inCatalog));
     assert.deepEqual(idx.plugins.find((p) => p.name === 'architecture-review').usedBy, ['sdd-engineering']);
   });
-  it('has 6 releases, all undated', () => {
+  it('has 7 releases, all undated', () => {
     const { releases } = rr.readJson('releases.json');
-    assert.equal(releases.length, 6);
+    assert.equal(releases.length, 7);
     assert.ok(releases.every((x) => x.date === null));
     assert.equal(releases.filter((x) => x.isCurrent).length, 4);
   });

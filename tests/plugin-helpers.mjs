@@ -17,7 +17,7 @@ export const NEW_SKILLS_1_1 = INCLUDED_SKILLS.slice(4);
 export const COURSE_SKILLS = ['react-best-practices', 'react-testing-library', 'security', 'mermaid-diagram'];
 export const NEXT_SKILLS = ['next-dev-loop', 'next-cache-components-adoption'];
 export const EXPECTED_VERSIONS = {
-  'engineering-paved-path': '1.1.0', 'research-tools': '1.0.0', 'architecture-review': '1.0.0', 'sdd-engineering': '1.1.0',
+  'engineering-paved-path': '1.1.0', 'research-tools': '1.0.0', 'architecture-review': '1.0.0', 'sdd-engineering': '1.1.1',
 };
 
 // Skills imported verbatim keep upstream quirks. Each exception names the exact place and why it is accepted.

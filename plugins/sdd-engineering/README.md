@@ -1,6 +1,6 @@
 # sdd-engineering
 
-A spec-driven development (SDD) workflow for any repository: write a spec, plan it, implement it phase by phase, review it and verify it against the plan. Version 1.1.0.
+A spec-driven development (SDD) workflow for any repository: write a spec, plan it, implement it phase by phase, review it and verify it against the plan. Version 1.1.1.
 
 ## Components
 
@@ -18,7 +18,11 @@ Use the namespaced names; they avoid clashes with agents or skills of the same n
 
 Typical flow: `spec-creator`, then you approve the spec, then `implementation-planner`, then you save the plan, then `/sdd-engineering:run-plan <plan path>`.
 
-## What is new in 1.1.0
+## What is new in 1.1.1
+
+`spec-creator` no longer leaves `[NEEDS CLARIFICATION]` markers for doubts the caller closed; it records them as assumptions with reasons in `Open questions`. Existing specs stay valid. See [CHANGELOG.md](CHANGELOG.md).
+
+## What was new in 1.1.0
 
 `spec-creator` now requires an acceptance criterion for every mandatory requirement and records the mapping in a `Requirements coverage` section. Specs from 1.0.0 stay valid. See [CHANGELOG.md](CHANGELOG.md).
 
@@ -62,7 +66,7 @@ The implementer keeps Bash to run checks, and Claude Code does not offer a comma
 
 ## Running the evals
 
-`evals/` holds a behavior-eval seed with five cases (three positive, two negative), indexed in `evals/README.md`. Each case follows the `claude plugin eval` layout and has a `setup.md` with the inline fixture and the manual check.
+`evals/` holds a behavior-eval seed with six cases (four positive, two negative), indexed in `evals/README.md`. Each case follows the `claude plugin eval` layout and has a `setup.md` with the inline fixture and the manual check.
 
 ```
 claude plugin eval ./plugins/sdd-engineering
