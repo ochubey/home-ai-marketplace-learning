@@ -4,7 +4,7 @@ import path from 'node:path';
 import { problem } from './report.mjs';
 
 export const CODEOWNERS_FILE = '.github/CODEOWNERS';
-const DEFAULT_PATTERNS = new Set(['*', '/**']);
+const DEFAULT_PATTERNS = new Set(['*', '/**', '**', '**/*']);
 
 function globToRegExp(pattern) {
   let p = pattern;
