@@ -1,7 +1,9 @@
 # home-ai-marketplace-learning
 
 Internal Claude Code plugin marketplace of the AI Engineering team (maintainer: ochubey).
-The catalog is empty for now; plugins are added in later phases.
+The catalog has three dependency plugins: `engineering-paved-path` (shared engineering skills), `research-tools`
+(a read-only researcher agent) and `architecture-review` (a read-only architecture reviewer that depends on
+`engineering-paved-path`). More plugins are added in later phases.
 
 ## Use the marketplace
 
@@ -70,7 +72,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first, then [docs/PLUGIN-GUIDELINES.md](
 | `README.md` | This file: consumer commands and the layout. |
 | `CONTRIBUTING.md` | Plugin structure, manifest fields, dependency rules, validator usage, PR checklist. |
 | `docs/` | `PLUGIN-GUIDELINES.md`, `SECURITY.md`, `RELEASES.md`, and `temp/` for temporary research notes. `SITE-SPEC.md` and `COST-BASELINE.md` arrive in later phases. |
-| `plugins/` | One folder per plugin: `plugins/<name>/`. Empty for now. |
+| `plugins/` | One folder per plugin: `plugins/<name>/`. Today: `engineering-paved-path`, `research-tools`, `architecture-review`. |
 | `scripts/` | The dependency-free validator (`validate-marketplace.mjs`, `lib/`) and `validate-allowlist.json`. |
 | `tests/` | Node test suite for the validator and for this repository's own files (`node --test`). |
 | `specs/` | The approved spec and plan for each phase. |

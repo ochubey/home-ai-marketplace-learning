@@ -3,3 +3,6 @@
 
 # One line per plugin, after the default rule (the last matching rule wins):
 # /plugins/<name>/ @owner
+/plugins/engineering-paved-path/ @ochubey
+/plugins/research-tools/ @ochubey
+/plugins/architecture-review/ @ochubey
