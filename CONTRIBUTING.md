@@ -18,6 +18,8 @@ plugins/<name>/
   .claude-plugin/plugin.json     required
   agents/  skills/  commands/  hooks/  .mcp.json   optional components
   README.md                      recommended
+  CHANGELOG.md                   recommended: one entry per released version
+  evals/                         optional: behavior-eval cases (evals/<case>/prompt.md + graders/*.md)
 ```
 
 A folder under `plugins/` without a catalog entry fails validation.
@@ -53,7 +55,7 @@ node --test
 claude plugin validate .
 ```
 
-Run `claude plugin validate .` without `--strict`: an empty catalog only produces a warning.
+Run `claude plugin validate .` without `--strict`: warnings do not fail the check.
 
 The validator scans tracked files plus new files that are not ignored by git, so run it before you
 `git add`. It prints one line per problem and exits 1 if there is any:

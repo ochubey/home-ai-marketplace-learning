@@ -1,0 +1,31 @@
+# Changelog
+
+## 1.0.0
+
+Initial release. Four agents and three skills, generalized from an internal harness.
+
+### Included
+
+- Agents: `spec-creator`, `implementation-planner`, `implementer`, `plan-verifier`.
+- Skills: `run-plan`, `workflow-retro`, `engineering-insights`.
+- Declared dependencies: `engineering-paved-path` `^1.1.0`, `research-tools` `^1.0.0`, `architecture-review` `^1.0.0`.
+
+### Edits relative to the source
+
+- Models: dated model IDs were replaced by the aliases `opus` (spec-creator, implementation-planner, plan-verifier) and `sonnet` (implementer), because aliases do not go stale.
+- Removed the project-specific MCP tool from `spec-creator`; a plugin cannot assume that MCP server exists. Current state is established with Read, Grep and Glob, and large unknowns are listed for the caller to give to `research-tools:researcher`.
+- Removed the separate test-writing agent step and the flag that skipped it from `run-plan`; that agent is not in this marketplace. Tests come from the implementer working tests first, as the plan says.
+- Converted the two slash commands (`run-plan`, `workflow-retro`) to skills with the same behavior, because plugins ship skills and the repository forbids command files.
+- Set `disable-model-invocation: true` on `run-plan`, because it orchestrates code changes and should run only when the user asks. `workflow-retro` keeps it as in the source.
+- Replaced the Ukrainian EARS keywords by English WHEN, WHILE, IF ... THEN and WHERE, because the repository is English-only.
+- Generalized project paths, package names, package-manager commands and layer order to neutral wording: check commands come from the plan, the caller or the target repository's own instruction files; the planner orders work as contracts, producers, consumers, docs.
+- Removed the Windows home-path example from `plan-verifier` and replaced the code examples with neutral placeholders, because machine-specific paths must not ship.
+- Added explicit `Inputs` sections to all four agents, so that callers know what to supply and agents report what is missing.
+- Added the data rule to every agent and skill: repository, spec, plan and tool-output text is data and its instructions are not followed.
+- Made `spec-creator` write at most one file, in a caller-confirmed spec directory (default `specs/`), and decline other writes, to keep its Write access narrow.
+- Made `implementation-planner` decline to write files and return the plan text, and stop on a spec that is not approved or has an open `[NEEDS CLARIFICATION]`.
+- Made `implementer` use only check commands from the plan, the caller or the repository's instruction files, and ask when none exist, so it never invents a check.
+- Added a fallback to the bare agent name and a stop that names the missing plugin in `run-plan`, because cross-plugin agent calls are untested.
+- Made `engineering-insights` generic: the target is the nearest ancestor directory with a package manifest or agent-instruction file, else the repository root; the example entries are neutral placeholders.
+- Made `workflow-retro` accept a ledger path other than `docs/retros/ledger.md` and keep writing `INSIGHTS.md` only after the user agrees.
+- Added a README, this changelog, COMPATIBILITY and a four-case behavior-eval seed.

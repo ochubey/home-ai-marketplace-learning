@@ -1,0 +1,15 @@
+{
+  "name": "architecture-review",
+  "version": "1.0.0",
+  "description": "A read-only architecture-reviewer agent that checks code against the architecture rules documented in the target repository.",
+  "author": {
+    "name": "AI Engineering (ochubey)"
+  },
+  "dependencies": [
+    {
+      "name": "engineering-paved-path",
+      "marketplace": "home-ai-marketplace-learning",
+      "version": "^1.0.0"
+    }
+  ]
+}

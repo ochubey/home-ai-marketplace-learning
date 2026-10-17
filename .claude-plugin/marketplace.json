@@ -6,5 +6,26 @@
   "metadata": {
     "description": "Internal Claude Code plugin marketplace of the AI Engineering team."
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "engineering-paved-path",
+      "source": "./plugins/engineering-paved-path",
+      "description": "Shared engineering skills for Fastify, Drizzle ORM, PostgreSQL, Zod, TypeScript, React, web security, Mermaid diagrams and Next.js."
+    },
+    {
+      "name": "research-tools",
+      "source": "./plugins/research-tools",
+      "description": "A read-only researcher agent for repository exploration and external research with cited evidence."
+    },
+    {
+      "name": "architecture-review",
+      "source": "./plugins/architecture-review",
+      "description": "A read-only architecture-reviewer agent that checks code against the architecture rules documented in the target repository."
+    },
+    {
+      "name": "sdd-engineering",
+      "source": "./plugins/sdd-engineering",
+      "description": "A spec-driven development workflow: agents that write a spec, plan it, implement it and verify it, plus skills to run a plan, review a run and keep INSIGHTS.md notes."
+    }
+  ]
 }
