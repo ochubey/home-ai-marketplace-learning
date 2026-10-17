@@ -1,10 +1,10 @@
 {
-  "name": "home-ai-marketplace-learning",
+  "name": "home-ai-marketplace-learning-stable",
   "owner": {
     "name": "AI Engineering (ochubey)"
   },
   "metadata": {
-    "description": "Internal Claude Code plugin marketplace of the AI Engineering team."
+    "description": "Stable channel of the AI Engineering team marketplace: pinned to verified releases, changed only by a deliberate commit."
   },
   "plugins": [
     {
