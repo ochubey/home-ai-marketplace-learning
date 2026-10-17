@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { checkSpec, checkPlan, acceptanceCriteria, checkQuality, checkFromSaved, parseAcBlocks } from '../scripts/cost/check-quality.mjs';
+import { checkSpec, checkPlan, acceptanceCriteria, checkQuality, checkFromSaved, parseAcBlocks, assemble } from '../scripts/cost/check-quality.mjs';
 import { GOOD_SPEC, GOOD_PLAN, GOOD_SPEC_NAME, claudeJson } from './cost-fixtures.mjs';
 
 const failing = (checks) => Object.entries(checks).filter(([, c]) => !c.pass).map(([k]) => k);
@@ -242,5 +242,21 @@ describe('cost: re-grade from saved files', () => {
     assert.equal(JSON.parse(r.stdout).pass, true);
     assert.equal(spawnSync(process.execPath, [script, '--from-saved', dir, 'l'], { encoding: 'utf8' }).status, 2);
     for (const d of dirs) rmSync(d, { recursive: true, force: true });
+  });
+});
+
+describe('cost: no-plan cause', () => {
+  const run = (specText) => assemble({ specText, files: [GOOD_SPEC_NAME], planJson: { result: 'I could not plan this.' }, specJsonOk: true, statusLines: [] });
+  it('names open markers as the cause when no plan came back', () => {
+    const c = run(`${GOOD_SPEC}\n[NEEDS CLARIFICATION] trimming?\n`);
+    assert.match(c['plan.no_plan_cause'].detail, /1 open \[NEEDS CLARIFICATION\] marker/);
+    assert.equal(c['plan.no_plan_cause'].pass, true);
+  });
+  it('says the spec was clean when no plan came back and there are no markers', () => {
+    assert.match(run(GOOD_SPEC)['plan.no_plan_cause'].detail, /no open markers/);
+  });
+  it('stays silent when a plan was delivered', () => {
+    const c = assemble({ specText: GOOD_SPEC, files: [GOOD_SPEC_NAME], planJson: { result: GOOD_PLAN }, specJsonOk: true, statusLines: [] });
+    assert.equal(c['plan.no_plan_cause'].detail, '');
   });
 });

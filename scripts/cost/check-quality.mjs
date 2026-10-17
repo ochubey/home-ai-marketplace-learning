@@ -175,7 +175,7 @@ function readJson(file) {
   }
 }
 
-function assemble({ specText, files, planJson, specJsonOk, statusLines }) {
+export function assemble({ specText, files, planJson, specJsonOk, statusLines }) {
   const checks = Object.fromEntries(Object.entries(checkSpec(specText, files)).map(([k, v]) => [`spec.${k}`, v]));
   const planChecks = checkPlan(
     typeof planJson?.result === 'string' ? planJson.result : '',
@@ -183,6 +183,13 @@ function assemble({ specText, files, planJson, specJsonOk, statusLines }) {
     statusLines,
   );
   for (const [k, v] of Object.entries(planChecks)) checks[`plan.${k}`] = v;
+  // Attribute a missing plan: the planner refuses to plan a spec that still has open markers, which is the spec's fault.
+  const noPlan = !checks['plan.coverage_table'].pass && !checks['plan.tasks_cover_acs'].pass;
+  const openMarkers = checks['spec.needs_clarification']?.count ?? 0;
+  checks['plan.no_plan_cause'] = {
+    pass: true,
+    detail: noPlan ? (openMarkers > 0 ? `no plan; the spec has ${openMarkers} open [NEEDS CLARIFICATION] marker(s)` : 'no plan; the spec has no open markers') : '',
+  };
   if (!planJson) checks['plan.json'] = bad('planner JSON missing or unreadable');
   if (!specJsonOk) checks['spec.json'] = bad('spec-creator JSON missing or unreadable');
   return checks;
