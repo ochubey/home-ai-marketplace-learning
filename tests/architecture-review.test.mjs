@@ -18,10 +18,10 @@ describe('architecture-review (AC-23..AC-30, AC-3)', () => {
     assert.deepEqual(toList(data.disallowedTools).sort(), [...WRITE_TOOLS].sort());
     assert.ok(!('skills' in data));
   });
-  it('declares exactly the one paved-path dependency; no other plugin declares dependencies', () => {
+  it('declares exactly the one paved-path dependency; no other plugin declares dependencies (sdd-engineering is asserted in its own test)', () => {
     const m = JSON.parse(read(path.join(dir, '.claude-plugin', 'plugin.json')));
     assert.deepEqual(m.dependencies, [{ name: PAVED, marketplace: MARKETPLACE, version: '^1.0.0' }]);
-    for (const n of pluginNames().filter((p) => p !== 'architecture-review')) {
+    for (const n of pluginNames().filter((p) => p !== 'architecture-review' && p !== 'sdd-engineering')) {
       const o = JSON.parse(read(path.join(pluginDir(n), '.claude-plugin', 'plugin.json')));
       assert.ok(!('dependencies' in o), `${n} must not declare dependencies`);
     }

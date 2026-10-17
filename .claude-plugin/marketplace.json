@@ -21,6 +21,11 @@
       "name": "architecture-review",
       "source": "./plugins/architecture-review",
       "description": "A read-only architecture-reviewer agent that checks code against the architecture rules documented in the target repository."
+    },
+    {
+      "name": "sdd-engineering",
+      "source": "./plugins/sdd-engineering",
+      "description": "A spec-driven development workflow: agents that write a spec, plan it, implement it and verify it, plus skills to run a plan, review a run and keep INSIGHTS.md notes."
     }
   ]
 }

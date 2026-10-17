@@ -16,7 +16,9 @@ export const INCLUDED_SKILLS = [
 export const NEW_SKILLS_1_1 = INCLUDED_SKILLS.slice(4);
 export const COURSE_SKILLS = ['react-best-practices', 'react-testing-library', 'security', 'mermaid-diagram'];
 export const NEXT_SKILLS = ['next-dev-loop', 'next-cache-components-adoption'];
-export const EXPECTED_VERSIONS = { 'engineering-paved-path': '1.1.0', 'research-tools': '1.0.0', 'architecture-review': '1.0.0' };
+export const EXPECTED_VERSIONS = {
+  'engineering-paved-path': '1.1.0', 'research-tools': '1.0.0', 'architecture-review': '1.0.0', 'sdd-engineering': '1.0.0',
+};
 
 // Skills imported verbatim keep upstream quirks. Each exception names the exact place and why it is accepted.
 export const COURSE_REPO_URL = 'github.com/ai-agentic-engineering-neo/dev-digest';
@@ -31,7 +33,37 @@ export const VERBATIM_DANGLING_REFS = new Set([
   'plugins/engineering-paved-path/skills/next-cache-components-adoption/SKILL.md -> node_modules/next/dist/docs/01-app/02-guides/migrating-to-cache-components.md',
 ]);
 export const EXCLUDED_SKILLS = ['onion-architecture', 'ui-architecture', 'pr-self-review', 'engineering-insights'];
+// A skill that is excluded everywhere except in the one plugin that owns it.
+export const EXCLUDED_SKILL_OWNERS = { 'engineering-insights': 'sdd-engineering' };
 export const WRITE_TOOLS = ['Write', 'Edit', 'NotebookEdit', 'Bash', 'Agent'];
+
+// Agents that may write. Every agent not listed here stays under the read-only rule.
+// `tools` is exact; `disallowed` lists the tools that must be present in `disallowedTools`.
+export const AGENT_POLICIES = {
+  'sdd-engineering/spec-creator': {
+    tools: ['Read', 'Grep', 'Glob', 'Write'],
+    disallowed: ['Edit', 'NotebookEdit', 'Bash', 'Agent'],
+  },
+  'sdd-engineering/implementer': {
+    tools: ['Read', 'Grep', 'Glob', 'Write', 'Edit', 'Bash'],
+    disallowed: ['NotebookEdit', 'Agent'],
+  },
+};
+
+// Files that a skill names but that live in the target repository at run time, not in the skill.
+// Exact "<skill file> -> <reference>" pairs only; each pair carries the reason.
+export const RUNTIME_REPO_REFS = new Set([
+  // engineering-insights: instruction files and the notes file live in the target repository at run time
+  'plugins/sdd-engineering/skills/engineering-insights/SKILL.md -> AGENTS.md',
+  'plugins/sdd-engineering/skills/engineering-insights/SKILL.md -> CLAUDE.md',
+  'plugins/sdd-engineering/skills/engineering-insights/SKILL.md -> INSIGHTS.md',
+  // run-plan: the target repository's instruction files document its check commands
+  'plugins/sdd-engineering/skills/run-plan/SKILL.md -> AGENTS.md',
+  'plugins/sdd-engineering/skills/run-plan/SKILL.md -> CLAUDE.md',
+  // workflow-retro: the notes file and the retro ledger are created in the target repository at run time
+  'plugins/sdd-engineering/skills/workflow-retro/SKILL.md -> INSIGHTS.md',
+  'plugins/sdd-engineering/skills/workflow-retro/SKILL.md -> docs/retros/ledger.md',
+]);
 
 export const DENY_LIST = new RegExp(
   [
@@ -63,6 +95,14 @@ export const pluginDir = (name) => path.join(PLUGINS_DIR, name);
 export const allPluginFiles = () => walk(PLUGINS_DIR).filter((f) => rel(f) !== 'plugins/README.md');
 export const skillFolders = () =>
   pluginNames().flatMap((p) => subdirs(path.join(pluginDir(p), 'skills')).map((s) => path.join(pluginDir(p), 'skills', s)));
+// The plugin that ships a skill folder or an agent file (second path segment under plugins/).
+export const ownerOf = (absPath) => rel(absPath).split('/')[1];
+// The plugin whose namespace prefix a shipped skill name must carry in agent text.
+export function skillOwner(skill) {
+  if (INCLUDED_SKILLS.includes(skill) || DEFERRED_SKILLS.includes(skill)) return PAVED;
+  const folder = skillFolders().find((s) => path.basename(s) === skill);
+  return folder ? ownerOf(folder) : PAVED;
+}
 export const agentFiles = () =>
   pluginNames().flatMap((p) =>
     existsSync(path.join(pluginDir(p), 'agents'))

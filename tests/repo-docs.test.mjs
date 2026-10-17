@@ -13,10 +13,10 @@ describe('docs/temp and repository docs (AC-41, AC-42)', () => {
     assert.deepEqual(readdirSync(path.join(REPO_ROOT, 'docs', 'temp')), ['README.md']);
   });
   for (const f of ['README.md', 'plugins/README.md']) {
-    it(`${f} no longer says empty and names the three plugins`, () => {
+    it(`${f} no longer says empty and names the four plugins`, () => {
       const t = read(path.join(REPO_ROOT, f));
       assert.doesNotMatch(t, /\bempty\b/i);
-      for (const n of [PAVED, 'research-tools', 'architecture-review']) assert.ok(t.includes(n), `${f} lacks ${n}`);
+      for (const n of [PAVED, 'research-tools', 'architecture-review', 'sdd-engineering']) assert.ok(t.includes(n), `${f} lacks ${n}`);
     });
   }
 });
