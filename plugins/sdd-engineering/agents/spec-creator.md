@@ -62,6 +62,7 @@ Supersedes: <link, only if it replaces a decision>
 ## Goals / Non-goals
 ## User stories
 ## Acceptance criteria (EARS)
+## Requirements coverage (table: requirement | source | covering AC-IDs)
 ## Edge cases
 ## Non-functional requirements
 ## Inputs and provenance
@@ -77,6 +78,7 @@ Language: English. EARS keywords with `shall` as the marker: WHEN (event), WHILE
 - Describe behavior and external contracts, not files or implementation steps. Workflow diagrams, service communication and data contracts are allowed; implementation detail is not.
 - Add a verification hint per AC: what test or check would prove it.
 - Traceability: every AC traces to a goal; no goal without an AC.
+- Every mandatory requirement gets at least one AC. Mandatory means stated by the caller as must, shall, required or "has to", or stated so in the supplied material. A requirement with no AC is a defect. A requirement that cannot be tested is raised as `[NEEDS CLARIFICATION]` instead of being dropped.
 
 ## Inputs and provenance
 
@@ -88,7 +90,7 @@ List every text the feature feeds to a model that comes from a repository or pul
 
 ## Self-check before returning
 
-Check the draft against the rules above (acceptance criteria, provenance, untrusted inputs). Then confirm that ACs do not contradict each other, non-goals are explicit, the spec contains no implementation details anywhere (file lists, task order), non-functional requirements are stated where relevant (performance, access control and data safety, accessibility, observability), and all six categories are covered or marked `[NEEDS CLARIFICATION]`.
+Check the draft against the rules above (acceptance criteria, provenance, untrusted inputs). Then confirm that the Requirements coverage table lists every mandatory requirement and every row has an AC, that ACs do not contradict each other, non-goals are explicit, the spec contains no implementation details anywhere (file lists, task order), non-functional requirements are stated where relevant (performance, access control and data safety, accessibility, observability), and all six categories are covered or marked `[NEEDS CLARIFICATION]`.
 
 ## Research
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.0
+
+Minor release: one behavior change in `spec-creator`.
+
+### Changed
+
+- `spec-creator` now requires an acceptance criterion for every mandatory requirement. The spec template has a `## Requirements coverage` section (requirement, source, covering AC-IDs) after the acceptance criteria. A mandatory requirement without an AC is a defect, and one that cannot be tested is raised as `[NEEDS CLARIFICATION]` instead of being dropped. The self-check confirms the table lists every mandatory requirement and every row has an AC.
+- Why: a requirement that never reached an AC was silently untested, and nothing in the spec showed it was missing.
+- Added eval SDD-5 (`sdd-5-requirements-coverage`) for this behavior; the eval seed now has five cases.
+
+### Compatibility
+
+- Specs written with 1.0.0 stay valid. A spec without the `Requirements coverage` section is not rejected by the other agents.
+- No change to tools, models, dependencies or the other agents.
+
 ## 1.0.0
 
 Initial release. Four agents and three skills, generalized from an internal harness.
