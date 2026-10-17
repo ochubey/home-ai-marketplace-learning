@@ -1,20 +1,38 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { REPO_ROOT, MARKETPLACE_NAME, runValidator, makeRepo } from './helpers.mjs';
 
 const read = (rel) => readFileSync(path.join(REPO_ROOT, rel), 'utf8');
 
-describe('T11 catalog skeleton (AC-1, AC-2)', () => {
-  it('marketplace.json declares name, owner and an empty plugins array', () => {
+// Plugins that must be in the catalog. Extended in each phase that adds a plugin.
+const EXPECTED_PLUGINS = ['engineering-paved-path', 'research-tools', 'architecture-review'];
+
+describe('T11 catalog (AC-1, AC-2)', () => {
+  it('marketplace.json declares name, owner and exactly the expected plugins', () => {
     const m = JSON.parse(read('.claude-plugin/marketplace.json'));
     assert.equal(m.name, MARKETPLACE_NAME);
     assert.equal(m.owner.name, 'AI Engineering (ochubey)');
     assert.ok(typeof m.metadata?.description === 'string' && m.metadata.description.length > 0);
     assert.ok(Array.isArray(m.plugins));
-    assert.equal(m.plugins.length, 0);
+    assert.deepEqual(m.plugins.map((p) => p.name).sort(), [...EXPECTED_PLUGINS].sort());
+    for (const p of m.plugins) {
+      assert.equal(p.source, `./plugins/${p.name}`);
+      assert.match(p.description, /^[^.!?]+[.!?]$/, `${p.name}: description must be one sentence`);
+      assert.ok(!('version' in p), `${p.name}: catalog entry must not carry a version`);
+    }
+  });
+
+  it('every expected plugin is owned in CODEOWNERS after the default rule', () => {
+    const lines = read('.github/CODEOWNERS').split(/\r?\n/);
+    const def = lines.indexOf('* @ochubey');
+    assert.ok(def >= 0);
+    for (const n of EXPECTED_PLUGINS) {
+      const at = lines.indexOf(`/plugins/${n}/ @ochubey`);
+      assert.ok(at > def, `CODEOWNERS rule for ${n} missing or before the default rule`);
+    }
   });
 
   it('plugins/README.md exists', () => {
@@ -32,7 +50,7 @@ describe('T11 catalog skeleton (AC-1, AC-2)', () => {
     const r = runValidator(REPO_ROOT);
     assert.equal(r.status, 0, r.stdout + r.stderr);
     assert.equal(r.stdout.split('\n').filter((l) => l.startsWith('ERROR ')).length, 0, r.stdout);
-    assert.match(r.stdout, /validate-marketplace: OK - 0 plugins checked, \d+ files scanned/);
+    assert.match(r.stdout, new RegExp(`validate-marketplace: OK - ${EXPECTED_PLUGINS.length} plugins checked, \\d+ files scanned`));
   });
 });
 
@@ -53,7 +71,18 @@ function trackedFiles() {
   return r.stdout.split('\0').filter(Boolean).filter((f) => exists(f));
 }
 
-const DOCS = ['README.md', 'CONTRIBUTING.md', 'docs/PLUGIN-GUIDELINES.md', 'docs/SECURITY.md', 'docs/RELEASES.md', 'docs/temp/README.md'];
+const pluginDocs = () =>
+  exists('plugins')
+    ? readdirSync(path.join(REPO_ROOT, 'plugins'), { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .flatMap((d) => [`plugins/${d.name}/README.md`, `plugins/${d.name}/evals/README.md`])
+        .filter(exists)
+    : [];
+
+const DOCS = [
+  'README.md', 'CONTRIBUTING.md', 'docs/PLUGIN-GUIDELINES.md', 'docs/SECURITY.md', 'docs/RELEASES.md', 'docs/temp/README.md',
+  ...pluginDocs(),
+];
 
 describe('T12 README (AC-4, AC-5)', () => {
   const readme = () => read('README.md');

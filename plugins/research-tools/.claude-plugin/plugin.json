@@ -1,0 +1,8 @@
+{
+  "name": "research-tools",
+  "version": "1.0.0",
+  "description": "A read-only researcher agent for repository exploration and external research with cited evidence.",
+  "author": {
+    "name": "AI Engineering (ochubey)"
+  }
+}
