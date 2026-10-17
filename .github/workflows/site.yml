@@ -1,0 +1,42 @@
+name: site
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install the site packages
+        working-directory: site
+        run: npm ci --ignore-scripts
+      - name: Build the catalog index
+        working-directory: site
+        run: npm run index
+      - name: Typecheck the site
+        working-directory: site
+        run: npm run typecheck
+      - name: Test the site
+        working-directory: site
+        run: npm test
+      - name: Build the site
+        working-directory: site
+        run: npm run build
+      - name: Check the build output
+        working-directory: site
+        run: npm run test:dist
+      - name: Audit the npm packages
+        working-directory: site
+        run: node scripts/audit-summary.mjs
