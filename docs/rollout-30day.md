@@ -49,8 +49,9 @@ A gate passes only if every line is true. A line that cannot be checked counts a
 
 - At least three real features went through the full chain (spec, plan, implement, verify) by people
   other than the owner, or, if there are fewer users, the owner states why the sample is small.
-- The fraction of runs where the planner returned no plan is below the level the owner accepts
-  (baseline measured: 2 of 10; the target is written down at day 1).
+- The fraction of runs that end without a plan is below the level the owner accepts (baseline measured:
+  2 of 10; the one cause that could be checked was a spec left with open `[NEEDS CLARIFICATION]` markers;
+  the target is written down at day 1).
 - Cost per scenario is within the range recorded in `COST-BASELINE.md`, or the difference is explained.
 - Every problem reported in the opt-in stage has an owner and either a fix or a documented workaround.
 
@@ -98,7 +99,7 @@ back first and investigate after.
 - Calling an agent of another plugin through `run-plan` is documented as untested.
 - The minimum Claude Code version is not confirmed; the plugins were tested with 2.1.302.
 - The cost experiment was small (five runs per label) and its quality gate is approximate.
-- The planner sometimes ends on a question instead of a plan.
+- A spec can be written with open `[NEEDS CLARIFICATION]` markers even when the request says there are none; the planner then correctly refuses to plan it until the markers are resolved.
 
 ## Rollout log
 
