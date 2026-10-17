@@ -8,7 +8,7 @@ import { REPO_ROOT, MARKETPLACE_NAME, runValidator, makeRepo } from './helpers.m
 const read = (rel) => readFileSync(path.join(REPO_ROOT, rel), 'utf8');
 
 // Plugins that must be in the catalog. Extended in each phase that adds a plugin.
-const EXPECTED_PLUGINS = ['engineering-paved-path', 'research-tools', 'architecture-review'];
+const EXPECTED_PLUGINS = ['engineering-paved-path', 'research-tools', 'architecture-review', 'sdd-engineering'];
 
 describe('T11 catalog (AC-1, AC-2)', () => {
   it('marketplace.json declares name, owner and exactly the expected plugins', () => {
@@ -75,7 +75,7 @@ const pluginDocs = () =>
   exists('plugins')
     ? readdirSync(path.join(REPO_ROOT, 'plugins'), { withFileTypes: true })
         .filter((d) => d.isDirectory())
-        .flatMap((d) => [`plugins/${d.name}/README.md`, `plugins/${d.name}/evals/README.md`])
+        .flatMap((d) => [`plugins/${d.name}/README.md`, `plugins/${d.name}/evals/README.md`, `plugins/${d.name}/COMPATIBILITY.md`])
         .filter(exists)
     : [];
 

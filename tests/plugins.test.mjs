@@ -7,6 +7,7 @@ import {
   PLUGINS_DIR, MARKETPLACE, PAVED, DEFERRED_SKILLS, INCLUDED_SKILLS, EXCLUDED_SKILLS, WRITE_TOOLS, DENY_LIST, rel, read, walk, subdirs,
   pluginNames, pluginDir, allPluginFiles, skillFolders, agentFiles,
   COURSE_REPO_URL, EXPECTED_VERSIONS, VERBATIM_DENY_EXCEPTIONS, VERBATIM_DANGLING_REFS,
+  AGENT_POLICIES, EXCLUDED_SKILL_OWNERS, RUNTIME_REPO_REFS, ownerOf, skillOwner,
 } from './plugin-helpers.mjs';
 
 describe('plugin file invariants (AC-31, AC-35)', () => {
@@ -35,7 +36,9 @@ describe('plugin file invariants (AC-31, AC-35)', () => {
   });
 
   it('no excluded skill folder exists in any plugin', () => {
-    const found = skillFolders().filter((s) => EXCLUDED_SKILLS.includes(path.basename(s)));
+    const found = skillFolders().filter(
+      (s) => EXCLUDED_SKILLS.includes(path.basename(s)) && EXCLUDED_SKILL_OWNERS[path.basename(s)] !== ownerOf(s),
+    );
     assert.deepEqual(found.map(rel), []);
   });
 });
@@ -79,7 +82,7 @@ describe('skill reference resolution (AC-12)', () => {
           if (/[{}*]/.test(ref) || ref.includes('URL')) continue;
           const candidates = [path.resolve(path.dirname(f), ref), path.resolve(dir, ref)];
           const ok = candidates.some((c) => c.startsWith(dir) && existsSync(c) && statSync(c).isFile()) || baseCount.get(path.basename(ref)) === 1;
-          if (!ok && !VERBATIM_DANGLING_REFS.has(`${rel(f)} -> ${ref}`)) unresolved.push(`${rel(f)} -> ${ref}`);
+          if (!ok && !VERBATIM_DANGLING_REFS.has(`${rel(f)} -> ${ref}`) && !RUNTIME_REPO_REFS.has(`${rel(f)} -> ${ref}`)) unresolved.push(`${rel(f)} -> ${ref}`);
         }
       }
       assert.deepEqual(unresolved, []);
@@ -103,15 +106,21 @@ describe('agent frontmatter (AC-18, AC-23, AC-34, AC-36)', () => {
       for (const key of ['hooks', 'mcpServers', 'permissionMode', 'skills']) assert.ok(!(key in data), `forbidden key ${key}`);
       const tools = toList(data.tools);
       assert.ok(tools.length > 0, 'tools missing');
-      for (const t of WRITE_TOOLS) assert.ok(!tools.includes(t), `tools includes ${t}`);
       const disallowed = toList(data.disallowedTools);
-      for (const t of WRITE_TOOLS) assert.ok(disallowed.includes(t), `disallowedTools lacks ${t}`);
+      const policy = AGENT_POLICIES[`${ownerOf(file)}/${path.basename(file, '.md')}`];
+      if (policy) {
+        assert.deepEqual([...tools].sort(), [...policy.tools].sort(), 'tools differ from the agent policy');
+        for (const t of policy.disallowed) assert.ok(disallowed.includes(t), `disallowedTools lacks ${t}`);
+      } else {
+        for (const t of WRITE_TOOLS) assert.ok(!tools.includes(t), `tools includes ${t}`);
+        for (const t of WRITE_TOOLS) assert.ok(disallowed.includes(t), `disallowedTools lacks ${t}`);
+      }
     });
     it(`${rel(file)}: paved-path skill names are namespaced`, () => {
       const bad = [];
       for (const skill of shippedSkills) {
         // `zod` is also an ordinary lowercase word only in code, never in agent prose
-        const re = new RegExp(`(?<!${PAVED}:)(?<![\\w-])${skill}(?![\\w-])`, 'g');
+        const re = new RegExp(`(?<!${skillOwner(skill)}:)(?<![\\w-])${skill}(?![\\w-])`, 'g');
         if (re.test(text)) bad.push(skill);
       }
       assert.deepEqual(bad, []);
