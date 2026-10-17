@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 // Runs the spec -> plan scenario N times against a fresh fixture repo and saves the raw JSON.
 // The claude binary defaults to `claude`; CLAUDE_BIN overrides it (used by the tests).
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+// Per label it writes <label>-manifest.json, and per run <label>-run<i>-{spec,plan,quality}.json plus
+// <label>-run<i>-spec.md (the generated spec, so quality can be re-graded with check-quality.mjs --from-saved).
+// It refuses to start when <label>-run* files already exist in --out.
+// claude gets an explicit env: CLAUDECODE and the model overrides (CLAUDE_CODE_SUBAGENT_MODEL, ANTHROPIC_MODEL)
+// are dropped unless --keep-env-overrides is given, so the run measures the --model flag, not leaked settings.
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -15,7 +20,12 @@ const REQUEST = path.join(HERE, 'request.txt');
 const STEP_TIMEOUT_MS = 15 * 60 * 1000;
 const PLUGINS = ['sdd-engineering', 'engineering-paved-path', 'research-tools', 'architecture-review'];
 
-const USAGE = 'usage: run-scenario.mjs <label> <runs> --out <dir> [--plugins <dir>] [--model sonnet] [--budget 2]';
+const USAGE = 'usage: run-scenario.mjs <label> <runs> --out <dir> [--plugins <dir>] [--model sonnet] [--budget 2] [--keep-env-overrides]';
+const FLAGS = ['keep-env-overrides'];
+const DROPPED_ALWAYS = ['CLAUDECODE'];
+const MODEL_OVERRIDES = ['CLAUDE_CODE_SUBAGENT_MODEL', 'ANTHROPIC_MODEL'];
+// Env var names worth recording in the manifest (names only, never values).
+const MANIFEST_ENV_NAMES = [...DROPPED_ALWAYS, ...MODEL_OVERRIDES, 'ANTHROPIC_SMALL_FAST_MODEL', 'ANTHROPIC_DEFAULT_OPUS_MODEL', 'ANTHROPIC_DEFAULT_SONNET_MODEL', 'ANTHROPIC_DEFAULT_HAIKU_MODEL'];
 
 export function parseArgs(argv) {
   const opts = { model: 'sonnet', budget: 2, plugins: path.join(REPO_ROOT, 'plugins') };
@@ -24,6 +34,10 @@ export function parseArgs(argv) {
     const a = argv[i];
     if (a.startsWith('--')) {
       const key = a.slice(2);
+      if (FLAGS.includes(key)) {
+        opts.keepEnvOverrides = true;
+        continue;
+      }
       if (!['out', 'plugins', 'model', 'budget'].includes(key)) throw new Error(`unknown option ${a}\n${USAGE}`);
       const v = argv[++i];
       if (v === undefined || v.startsWith('--')) throw new Error(`option ${a} needs a value\n${USAGE}`);
@@ -45,7 +59,14 @@ export function parseArgs(argv) {
     plugins: path.resolve(opts.plugins),
     model: opts.model,
     budget,
+    keepEnvOverrides: Boolean(opts.keepEnvOverrides),
   };
+}
+
+/** Env for claude: a copy of `base` without CLAUDECODE and (unless keepOverrides) the model overrides. */
+export function buildClaudeEnv(base = process.env, { keepOverrides = false } = {}) {
+  const drop = new Set([...DROPPED_ALWAYS, ...(keepOverrides ? [] : MODEL_OVERRIDES)]);
+  return Object.fromEntries(Object.entries(base).filter(([k]) => !drop.has(k)));
 }
 
 function isInside(child, parent) {
@@ -84,21 +105,24 @@ function git(cwd, args) {
   if (r.status !== 0) throw new Error(`git ${args.join(' ')} failed: ${r.stderr}`);
 }
 
-function freshRepo() {
-  const dir = mkdtempSync(path.join(tmpdir(), 'cost-fixture-'));
+function initRepo(dir) {
   cpSync(FIXTURE, dir, { recursive: true });
   git(dir, ['init', '-q']);
   git(dir, ['add', '-A']);
   git(dir, ['commit', '-q', '-m', 'fixture']);
-  return dir;
+}
+
+function pluginCommit(plugins) {
+  const r = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: plugins, encoding: 'utf8' });
+  return r.status === 0 ? r.stdout.trim() : null;
 }
 
 /** Run one claude step. Returns { ok, failure, raw, stderr }; the raw output is always kept. */
-function claudeStep(cwd, args) {
+function claudeStep(cwd, args, env) {
   assertSafeCwd(cwd);
   const bin = process.env.CLAUDE_BIN || 'claude';
   const r = spawnSync(bin, args, {
-    cwd, input: '', encoding: 'utf8', timeout: STEP_TIMEOUT_MS, maxBuffer: 256 * 1024 * 1024,
+    cwd, env, input: '', encoding: 'utf8', timeout: STEP_TIMEOUT_MS, maxBuffer: 256 * 1024 * 1024,
   });
   const raw = r.stdout ?? '';
   const stderr = (r.stderr ?? '') + (r.error ? `\n${r.error.message}` : '');
@@ -121,49 +145,82 @@ export function approveSpec(file) {
   return true;
 }
 
-export function runScenario({ label, runs, out, plugins, model, budget }, log = console.error) {
+export function runScenario({ label, runs, out, plugins, model, budget, keepEnvOverrides = false }, log = console.error) {
+  const stale = existsSync(out) ? readdirSync(out).filter((f) => f.startsWith(`${label}-run`)) : [];
+  if (stale.length) {
+    throw new Error(`${out} already has files for label "${label}" (${stale.slice(0, 3).join(', ')}${stale.length > 3 ? ', ...' : ''}); use a new label or another --out`);
+  }
   mkdirSync(out, { recursive: true });
+  writeFileSync(path.join(out, `${label}-manifest.json`), JSON.stringify({
+    label,
+    runs,
+    model,
+    budget,
+    plugin_commit: pluginCommit(plugins),
+    env_names_set: MANIFEST_ENV_NAMES.filter((k) => process.env[k] !== undefined),
+    keep_env_overrides: keepEnvOverrides,
+  }, null, 2) + '\n');
   const request = readFileSync(REQUEST, 'utf8').trim();
+  const env = buildClaudeEnv(process.env, { keepOverrides: keepEnvOverrides });
   const records = [];
   for (let i = 1; i <= runs; i++) {
     const base = path.join(out, `${label}-run${i}`);
     const started = Date.now();
-    const repo = freshRepo();
+    let repo = null;
     let failure = null;
+    let quality;
+    let specFile = null;
     const save = (suffix, step) => {
       writeFileSync(`${base}-${suffix}.json`, step.raw);
       if (step.stderr.trim()) writeFileSync(`${base}-${suffix}.stderr.txt`, step.stderr);
     };
 
-    const spec = claudeStep(repo, buildClaudeArgs({ model, plugins, budget, prompt: specPrompt(request) }));
-    save('spec', spec);
-    if (!spec.ok) failure = `spec step: ${spec.failure}`;
+    try {
+      repo = mkdtempSync(path.join(tmpdir(), 'cost-fixture-'));
+      assertSafeCwd(repo);
+      initRepo(repo);
 
-    let planSaved = false;
-    if (!failure) {
-      const files = listSpecFiles(repo);
-      if (files.length !== 1) failure = `spec step wrote ${files.length} files under specs/`;
-      else {
-        if (!approveSpec(path.join(repo, 'specs', files[0]))) failure = 'spec has no Status: line to approve';
+      const spec = claudeStep(repo, buildClaudeArgs({ model, plugins, budget, prompt: specPrompt(request) }), env);
+      save('spec', spec);
+      if (!spec.ok) failure = `spec step: ${spec.failure}`;
+
+      let planSaved = false;
+      if (!failure) {
+        const files = listSpecFiles(repo);
+        if (files.length !== 1) failure = `spec step wrote ${files.length} files under specs/`;
         else {
-          const plan = claudeStep(repo, buildClaudeArgs({ model, plugins, budget, prompt: planPrompt(files[0]) }));
-          save('plan', plan);
-          planSaved = true;
-          if (!plan.ok) failure = `plan step: ${plan.failure}`;
+          specFile = files[0];
+          if (!approveSpec(path.join(repo, 'specs', files[0]))) failure = 'spec has no Status: line to approve';
+          else {
+            const plan = claudeStep(repo, buildClaudeArgs({ model, plugins, budget, prompt: planPrompt(files[0]) }), env);
+            save('plan', plan);
+            planSaved = true;
+            if (!plan.ok) failure = `plan step: ${plan.failure}`;
+          }
         }
+      }
+      quality = checkQuality({
+        repoDir: repo,
+        specJsonPath: `${base}-spec.json`,
+        planJsonPath: planSaved ? `${base}-plan.json` : null,
+      });
+    } catch (e) {
+      failure = `exception: ${e.message}`;
+      quality = { pass: false, checks: { 'run.exception': { pass: false, detail: e.message } } };
+    } finally {
+      if (repo) {
+        try {
+          const files = listSpecFiles(repo);
+          if (files.length === 1) copyFileSync(path.join(repo, 'specs', files[0]), `${base}-spec.md`);
+        } catch { /* evidence copy is best effort; the run record still gets written */ }
+        rmSync(repo, { recursive: true, force: true });
       }
     }
 
     const wallMs = Date.now() - started;
-    const quality = checkQuality({
-      repoDir: repo,
-      specJsonPath: `${base}-spec.json`,
-      planJsonPath: planSaved ? `${base}-plan.json` : null,
-    });
-    const record = { run: i, label, status: failure ? 'failed' : 'ok', failure, wall_ms: wallMs, quality };
+    const record = { run: i, label, status: failure ? 'failed' : 'ok', failure, wall_ms: wallMs, spec_file: specFile, quality };
     writeFileSync(`${base}-quality.json`, JSON.stringify(record, null, 2) + '\n');
     records.push(record);
-    rmSync(repo, { recursive: true, force: true });
     log(`${label} run ${i}/${runs}: ${record.status}${failure ? ` (${failure})` : ''}, quality ${quality.pass ? 'pass' : 'fail'}, ${wallMs} ms`);
   }
   return records;

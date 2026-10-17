@@ -88,7 +88,7 @@ List every text the feature feeds to a model that comes from a repository or pul
 
 ## Self-check before returning
 
-Check the draft against the rules above (acceptance criteria, provenance, untrusted inputs). Then confirm that ACs do not contradict each other, non-goals are explicit, non-functional requirements are stated where relevant (performance, access control and data safety, accessibility, observability), and all six categories are covered or marked `[NEEDS CLARIFICATION]`.
+Check the draft against the rules above (acceptance criteria, provenance, untrusted inputs). Then confirm that ACs do not contradict each other, non-goals are explicit, the spec contains no implementation details anywhere (file lists, task order), non-functional requirements are stated where relevant (performance, access control and data safety, accessibility, observability), and all six categories are covered or marked `[NEEDS CLARIFICATION]`.
 
 ## Research
 
