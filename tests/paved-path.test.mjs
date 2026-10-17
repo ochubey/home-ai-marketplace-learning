@@ -10,14 +10,14 @@ import {
 
 describe('engineering-paved-path (AC-9, AC-10, AC-13, AC-16)', () => {
   const skills = path.join(pluginDir(PAVED), 'skills');
-  it('ships exactly the four license-confirmed skills, each with a LICENSE', () => {
+  it('ships exactly the eleven license-confirmed skills, each with an MIT LICENSE', () => {
     assert.deepEqual(subdirs(skills), [...INCLUDED_SKILLS].sort());
     for (const s of INCLUDED_SKILLS) {
       assert.ok(existsSync(path.join(skills, s, 'SKILL.md')), `${s}/SKILL.md`);
-      assert.match(read(path.join(skills, s, 'LICENSE')), /^MIT License/);
+      assert.match(read(path.join(skills, s, 'LICENSE')), /^(The )?MIT License/);
     }
   });
-  it('none of the six deferred skills exists', () => {
+  it('the deferred skill is not shipped', () => {
     for (const s of DEFERRED_SKILLS) assert.ok(!existsSync(path.join(skills, s)), `${s} must not ship`);
   });
   it('declares no dependencies and has no agents', () => {

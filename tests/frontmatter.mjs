@@ -1,6 +1,7 @@
 // Minimal reader for the leading `---` frontmatter block of a Markdown file.
 // Supports: `key: value` (plain, single- or double-quoted), `key:` followed by `- item`
 // lists, `key:` followed by an indented nested map, and inline `[a, b]` lists.
+// Also supports folded (`>`) and literal (`|`) block scalars (indent-continued lines).
 // Throws when the block is missing or unterminated.
 
 function unquote(raw) {
@@ -36,6 +37,18 @@ function parseBlock(lines, start, indent) {
     const m = /^(\s*)([A-Za-z0-9_-]+):(?:\s+(.*))?$/.exec(line);
     if (!m) throw new Error(`frontmatter: cannot parse line ${JSON.stringify(line)}`);
     const [, , key, rest] = m;
+    if (rest !== undefined && /^[>|][+-]?$/.test(rest.trim())) {
+      const folded = rest.trim()[0] === '>';
+      const parts = [];
+      let j = i + 1;
+      while (j < lines.length && (lines[j].trim() === '' || indentOf(lines[j]) > indentOf(line))) {
+        parts.push(lines[j].trim());
+        j++;
+      }
+      out[key] = parts.join(folded ? ' ' : '\n').trim();
+      i = j;
+      continue;
+    }
     if (rest !== undefined && rest.trim() !== '') {
       out[key] = scalar(rest);
       i++;

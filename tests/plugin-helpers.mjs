@@ -7,10 +7,29 @@ import { parseFrontmatter, toList } from './frontmatter.mjs';
 export const PLUGINS_DIR = path.join(REPO_ROOT, 'plugins');
 export const MARKETPLACE = 'home-ai-marketplace-learning';
 export const PAVED = 'engineering-paved-path';
-export const DEFERRED_SKILLS = [
-  'typescript-expert', 'next-best-practices', 'react-best-practices', 'react-testing-library', 'security', 'mermaid-diagram',
+export const DEFERRED_SKILLS = ['next-best-practices'];
+export const INCLUDED_SKILLS = [
+  'fastify-best-practices', 'drizzle-orm-patterns', 'postgresql-table-design', 'zod',
+  'typescript-expert', 'react-best-practices', 'react-testing-library', 'security', 'mermaid-diagram',
+  'next-dev-loop', 'next-cache-components-adoption',
 ];
-export const INCLUDED_SKILLS = ['fastify-best-practices', 'drizzle-orm-patterns', 'postgresql-table-design', 'zod'];
+export const NEW_SKILLS_1_1 = INCLUDED_SKILLS.slice(4);
+export const COURSE_SKILLS = ['react-best-practices', 'react-testing-library', 'security', 'mermaid-diagram'];
+export const NEXT_SKILLS = ['next-dev-loop', 'next-cache-components-adoption'];
+export const EXPECTED_VERSIONS = { 'engineering-paved-path': '1.1.0', 'research-tools': '1.0.0', 'architecture-review': '1.0.0' };
+
+// Skills imported verbatim keep upstream quirks. Each exception names the exact place and why it is accepted.
+export const COURSE_REPO_URL = 'github.com/ai-agentic-engineering-neo/dev-digest';
+export const VERBATIM_DENY_EXCEPTIONS = new Set([
+  // generic example error message in an upstream security example, not a reference to this project
+  'plugins/engineering-paved-path/skills/security/examples.md:287',
+]);
+export const VERBATIM_DANGLING_REFS = new Set([
+  // upstream names files that are not part of the skill; they are not shipped
+  'plugins/engineering-paved-path/skills/mermaid-diagram/SKILL.md -> references.md',
+  'plugins/engineering-paved-path/skills/next-cache-components-adoption/SKILL.md -> AGENTS.md',
+  'plugins/engineering-paved-path/skills/next-cache-components-adoption/SKILL.md -> node_modules/next/dist/docs/01-app/02-guides/migrating-to-cache-components.md',
+]);
 export const EXCLUDED_SKILLS = ['onion-architecture', 'ui-architecture', 'pr-self-review', 'engineering-insights'];
 export const WRITE_TOOLS = ['Write', 'Edit', 'NotebookEdit', 'Bash', 'Agent'];
 

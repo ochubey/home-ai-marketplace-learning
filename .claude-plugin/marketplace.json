@@ -10,7 +10,7 @@
     {
       "name": "engineering-paved-path",
       "source": "./plugins/engineering-paved-path",
-      "description": "Shared, project-agnostic engineering skills for Fastify, Drizzle ORM, PostgreSQL and Zod."
+      "description": "Shared engineering skills for Fastify, Drizzle ORM, PostgreSQL, Zod, TypeScript, React, web security, Mermaid diagrams and Next.js."
     },
     {
       "name": "research-tools",

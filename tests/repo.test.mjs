@@ -20,7 +20,7 @@ describe('T11 catalog (AC-1, AC-2)', () => {
     assert.deepEqual(m.plugins.map((p) => p.name).sort(), [...EXPECTED_PLUGINS].sort());
     for (const p of m.plugins) {
       assert.equal(p.source, `./plugins/${p.name}`);
-      assert.match(p.description, /^[^.!?]+[.!?]$/, `${p.name}: description must be one sentence`);
+      assert.match(p.description, /^(?:[^.!?]|\.(?=\S))+[.!?]$/, `${p.name}: description must be one sentence`);
       assert.ok(!('version' in p), `${p.name}: catalog entry must not carry a version`);
     }
   });

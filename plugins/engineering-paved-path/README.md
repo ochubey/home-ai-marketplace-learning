@@ -1,6 +1,6 @@
 # engineering-paved-path
 
-Shared, project-agnostic engineering skills for Fastify, Drizzle ORM, PostgreSQL and Zod. Version 1.0.0.
+Shared engineering skills for Fastify, Drizzle ORM, PostgreSQL, Zod, TypeScript, React, web security, Mermaid diagrams and Next.js. Version 1.1.0.
 
 The skills load on demand when the task matches their description. They give guidance only: they pre-approve no tools and ship no scripts or hooks.
 
@@ -12,6 +12,13 @@ The skills load on demand when the task matches their description. They give gui
 | `engineering-paved-path:drizzle-orm-patterns` | Defining Drizzle schemas, relations, queries, transactions and migrations. |
 | `engineering-paved-path:postgresql-table-design` | Designing or reviewing a PostgreSQL schema (data types, indexing, constraints). |
 | `engineering-paved-path:zod` | Defining Zod schemas, parsing with `safeParse`, inferring types, handling errors. |
+| `engineering-paved-path:typescript-expert` | Hard TypeScript problems: types, generics, module and build configuration. |
+| `engineering-paved-path:react-best-practices` | Writing or reviewing React code (state, hooks, anti-patterns). Includes Tailwind CSS conventions. |
+| `engineering-paved-path:react-testing-library` | Testing React components with React Testing Library and Vitest. |
+| `engineering-paved-path:security` | Reviewing code for web vulnerabilities. Written for React + Express + MongoDB + JWT stacks; other stacks need translation. |
+| `engineering-paved-path:mermaid-diagram` | Drawing flowcharts, sequence and other diagrams in Mermaid. |
+| `engineering-paved-path:next-dev-loop` | Verifying Next.js runtime behavior in a running `next dev` after an edit. |
+| `engineering-paved-path:next-cache-components-adoption` | Enabling Cache Components in a Next.js app and resolving blocking routes. |
 
 Reference a skill by its namespaced name (`engineering-paved-path:<skill>`). If a repository also has a skill with the same bare name, the namespaced name picks this plugin's copy.
 
@@ -36,7 +43,7 @@ This plugin ships no agents. No skill declares `allowed-tools`, so no skill pre-
 
 ## Provenance and licenses
 
-Every skill is third-party content under the MIT license. Each skill folder holds the upstream `LICENSE` file as published (the copyright line is part of that file). The zod upstream license names no copyright holder; it is reproduced as published.
+Every skill is third-party content under the MIT license. Each skill folder holds a `LICENSE` file as published upstream (the copyright line is part of that file). The zod upstream license names no copyright holder; it is reproduced as published. From 1.1.0 on, skills are copied verbatim from a pinned upstream commit; anything not copied is listed in the CHANGELOG.
 
 | Skill | Upstream repository and path | License | Notice in this plugin |
 |---|---|---|---|
@@ -44,8 +51,13 @@ Every skill is third-party content under the MIT license. Each skill folder hold
 | `drizzle-orm-patterns` | [giuseppe-trisciuoglio/developer-kit](https://github.com/giuseppe-trisciuoglio/developer-kit), `plugins/developer-kit-typescript/skills/drizzle-orm-patterns` | MIT | `skills/drizzle-orm-patterns/LICENSE` |
 | `postgresql-table-design` | [wshobson/agents](https://github.com/wshobson/agents), `plugins/database-design/skills/postgresql` | MIT | `skills/postgresql-table-design/LICENSE` |
 | `zod` | [pproenca/dot-skills](https://github.com/pproenca/dot-skills), `skills/.curated/zod` | MIT | `skills/zod/LICENSE` |
+| `typescript-expert` | [course repository](https://github.com/ai-agentic-engineering-neo/dev-digest), `.claude/skills/typescript-expert`; recorded upstream: [sickn33/antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) | MIT | `skills/typescript-expert/LICENSE` (antigravity) |
+| `react-best-practices`, `react-testing-library`, `security`, `mermaid-diagram` | [course repository](https://github.com/ai-agentic-engineering-neo/dev-digest), `.claude/skills/<skill>` | MIT (repository license) | `skills/<skill>/LICENSE` (course text) |
+| `next-dev-loop`, `next-cache-components-adoption` | [vercel/next.js](https://github.com/vercel/next.js), `skills/<skill>` | MIT | `skills/<skill>/LICENSE` |
 
 The licenses were checked on 2026-10-17 against the upstream default branches: mcollina/skills `df62154`, developer-kit `fe73fb3`, wshobson/agents `044b4b2`, dot-skills `cf93c57`. These are the commits current at the check, not necessarily the commits the copied files were taken from.
+
+The 1.1.0 skills are pinned: course repository `reference/full-build` at `df74ee7` (files) and its `main` at `c3c8042` (the repository `LICENSE`, which that branch does not contain); vercel/next.js `canary` at `e2e7393`; sickn33/antigravity-awesome-skills `c564f9f` (license). The four course-written skills (`react-best-practices`, `react-testing-library`, `security`, `mermaid-diagram`) have no separate upstream; they rely on the course repository's MIT license, so their `LICENSE` is that text.
 
 ### Inclusion rule
 
@@ -60,16 +72,11 @@ A skill that fails R1 is excluded. A skill that fails only R3 is deferred.
 
 ### Deferred
 
-Left out of 1.0.0 and candidates for a later minor release once provenance or permission is established:
+Left out and candidates for a later release once permission is established:
 
 | Skill | Reason |
 |---|---|
-| `next-best-practices` | The upstream repository has no license. |
-| `typescript-expert` | The upstream license is unclear. |
-| `react-best-practices` | Upstream provenance is unknown. |
-| `react-testing-library` | Upstream provenance is unknown. |
-| `security` | Upstream provenance is unknown. |
-| `mermaid-diagram` | Upstream provenance is unknown. |
+| `next-best-practices` | Its former upstream (vercel-labs/next-skills) has no license and no longer holds the skill. The Next.js skills from `vercel/next.js` are included instead. |
 
 ### Excluded
 
