@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.1.0
+
+Seven skills added. All are copied verbatim from the pinned upstream commits listed in the README; no skill text was edited.
+
+### Added
+
+- `typescript-expert`, `react-best-practices`, `react-testing-library`, `security`, `mermaid-diagram` (from the course repository)
+- `next-dev-loop`, `next-cache-components-adoption` (from vercel/next.js)
+- A `LICENSE` file in each new skill folder (antigravity text for `typescript-expert`, the course repository text for the four course-written skills, the Next.js text for the two Next.js skills).
+
+### Files not copied
+
+- `typescript-expert/scripts/ts_diagnostic.py` and `typescript-expert/references/utility-types.ts`: executable and source files; plugin files may not include scripts.
+
+### Known upstream quirks (left as published)
+
+- `mermaid-diagram/SKILL.md` mentions a `references.md` that upstream does not contain.
+- `next-cache-components-adoption/SKILL.md` points to `AGENTS.md` and a `node_modules/next/dist/docs/...` page in the user's own Next.js project, which are not part of this plugin.
+- `security/examples.md` has an example error message that contains a generic server path.
+- `security` assumes React + Express + MongoDB + JWT; `react-best-practices` includes Tailwind CSS conventions.
+- `react-testing-library/README.md` is shipped as published.
+
+### Not added
+
+`next-best-practices`: see the README (Deferred).
+
 ## 1.0.0
 
 Initial release. Four skills extracted from an internal harness, all MIT-licensed upstream.

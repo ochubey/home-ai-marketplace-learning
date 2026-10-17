@@ -7,7 +7,7 @@ Plugins today:
 
 | Plugin | What it is |
 |---|---|
-| [engineering-paved-path](engineering-paved-path/) | Shared engineering skills: Fastify, Drizzle ORM, PostgreSQL, Zod. |
+| [engineering-paved-path](engineering-paved-path/) | Shared engineering skills: Fastify, Drizzle ORM, PostgreSQL, Zod, TypeScript, React, security, Mermaid, Next.js. |
 | [research-tools](research-tools/) | A read-only `researcher` agent. |
 | [architecture-review](architecture-review/) | A read-only `architecture-reviewer` agent; depends on `engineering-paved-path`. |
 
