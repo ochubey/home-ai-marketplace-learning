@@ -116,6 +116,17 @@ function slug(text: string): string {
     .replace(/ +/g, '-');
 }
 
+/** The page shell owns the only h1; a Markdown h1 is rendered as an h2. */
+function demoteH1(root: ParentNode): void {
+  const doc = (root as Element).ownerDocument ?? document;
+  for (const h of Array.from(root.querySelectorAll('h1'))) {
+    const h2 = doc.createElement('h2');
+    for (const a of Array.from(h.attributes)) h2.setAttribute(a.name, a.value);
+    while (h.firstChild) h2.appendChild(h.firstChild);
+    h.replaceWith(h2);
+  }
+}
+
 function addHeadingIds(root: ParentNode): void {
   const seen = new Map<string, number>();
   for (const h of Array.from(root.querySelectorAll('h1, h2, h3, h4, h5, h6'))) {
@@ -148,6 +159,7 @@ export function renderMarkdown(source: string, ctx: MarkdownContext): string {
   tpl.innerHTML = clean;
   replaceImages(tpl.content, ctx);
   rewriteLinks(tpl.content, ctx);
+  demoteH1(tpl.content);
   addHeadingIds(tpl.content);
   return tpl.innerHTML;
 }

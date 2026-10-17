@@ -84,7 +84,8 @@ describe('renderMarkdown sanitizing', () => {
 
   it('renders ordinary Markdown', () => {
     const el = dom('# Title\n\nSome **bold** text and `code`.\n\n- a\n- b\n\n| h |\n|---|\n| c |\n');
-    expect(el.querySelector('h1')?.textContent).toBe('Title');
+    expect(el.querySelector('h1')).toBeNull();
+    expect(el.querySelector('h2')?.textContent).toBe('Title');
     expect(el.querySelector('strong')?.textContent).toBe('bold');
     expect(el.querySelector('code')?.textContent).toBe('code');
     expect(el.querySelectorAll('li')).toHaveLength(2);
@@ -158,7 +159,7 @@ describe('renderMarkdown links', () => {
     expect(a.getAttribute('href')).toBe('#my-section');
     expect(a.getAttribute('rel')).toBeNull();
     expect(a.querySelector('.ext-indicator')).toBeNull();
-    expect(el.querySelector('h1')?.getAttribute('id')).toBe('my-section');
+    expect(el.querySelector('h2')?.getAttribute('id')).toBe('my-section');
   });
 });
 
