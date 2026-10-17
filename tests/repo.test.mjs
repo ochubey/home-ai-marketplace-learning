@@ -80,7 +80,7 @@ const pluginDocs = () =>
     : [];
 
 const DOCS = [
-  'README.md', 'CONTRIBUTING.md', 'docs/PLUGIN-GUIDELINES.md', 'docs/SECURITY.md', 'docs/RELEASES.md', 'docs/temp/README.md',
+  'README.md', 'CONTRIBUTING.md', 'docs/PLUGIN-GUIDELINES.md', 'docs/SECURITY.md', 'docs/RELEASES.md', 'docs/temp/README.md', 'docs/SITE-SPEC.md',
   ...pluginDocs(),
 ];
 

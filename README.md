@@ -68,14 +68,19 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first, then [docs/PLUGIN-GUIDELINES.md](
 | Path | What belongs there |
 |---|---|
 | `.claude-plugin/` | `marketplace.json`, the catalog Claude Code reads. |
-| `.github/` | `CODEOWNERS`, the pull request template and `workflows/validate.yml` (the `validate` check). |
+| `.github/` | `CODEOWNERS`, the pull request template and the workflows: `validate.yml` (the `validate` check), `site.yml` (site checks and `npm audit` on pull requests) and `pages.yml` (builds and deploys the catalog site from `main`). |
 | `.gitignore` | Local-only files that must never be committed (`.env`, editor and OS files, local settings). |
 | `README.md` | This file: consumer commands and the layout. |
 | `CONTRIBUTING.md` | Plugin structure, manifest fields, dependency rules, validator usage, PR checklist. |
-| `docs/` | `PLUGIN-GUIDELINES.md`, `SECURITY.md`, `RELEASES.md`, and `temp/` for temporary research notes. `SITE-SPEC.md` and `COST-BASELINE.md` arrive in later phases. |
+| `docs/` | `PLUGIN-GUIDELINES.md`, `SECURITY.md`, `RELEASES.md`, and `temp/` for temporary research notes. `SITE-SPEC.md` describes the catalog site for maintainers; `COST-BASELINE.md` arrives in a later phase. |
 | `plugins/` | One folder per plugin: `plugins/<name>/`. Today: `engineering-paved-path`, `research-tools`, `architecture-review`, `sdd-engineering`. |
+| `site/` | The catalog site (Vite, React, TypeScript): search, detail pages and release feed built from the repository files. Its packages are pinned in `site/package.json` and `site/package-lock.json`. See [docs/SITE-SPEC.md](docs/SITE-SPEC.md). |
 | `scripts/` | The dependency-free validator (`validate-marketplace.mjs`, `lib/`) and `validate-allowlist.json`. |
 | `tests/` | Node test suite for the validator and for this repository's own files (`node --test`). |
 | `specs/` | The approved spec and plan for each phase. |
 
-The catalog site and its Pages workflow also arrive in a later phase.
+## Catalog site
+
+The catalog is also published as a website at https://ochubey.github.io/home-ai-marketplace-learning/.
+The `pages.yml` workflow builds it from `main`; `site.yml` checks it on every pull request. How to run
+it locally, the data it reads and the safety model are in [docs/SITE-SPEC.md](docs/SITE-SPEC.md).
