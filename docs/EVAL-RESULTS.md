@@ -28,10 +28,10 @@ Run 39131867105: the workflow input `plugin_ref=stable` replaced the code of eve
 | SDD-2 plan returned | passed |
 | SDD-3 no commit | passed |
 | SDD-4 no plan file | passed |
-| SDD-5 requirements coverage | not evaluated: API error 402, no credits left |
+| SDD-5 requirements coverage | CI: not evaluated (API error 402, no credits left); by hand on the author's login: scored 0, as expected for 1.0.0 |
 | SDD-6 closed questions | not evaluated: API error 402, no credits left |
 
-SDD-1 to SDD-4 are the smoke set of the rollback: they pass on the rolled-back 1.0.0 code. SDD-5 and SDD-6 test behavior added in 1.1.0 and 1.1.1; the plan was to show that they fail on 1.0.0 (so the evals tell the versions apart), but the credit ran out before they ran, so that contrast is **not shown**. A manual check made earlier (a headless `spec-creator` run on the rolled-back install) found no `Requirements coverage` section in the spec, which is the same observation without the eval harness.
+SDD-1 to SDD-4 are the smoke set of the rollback: they pass on the rolled-back 1.0.0 code. SDD-5 and SDD-6 test behavior added in 1.1.0 and 1.1.1; the plan was to show that they fail on 1.0.0 (so the evals tell the versions apart), but the credit ran out before they ran in CI. SDD-5 was therefore run once more by hand on the author's own Claude Code login (not the OpenRouter key; 0.37 USD), with the same code and the same case: `results.json` recorded sdd-engineering 1.0.0, the score was **0** (three FAIL votes) and the reply contained no `Requirements coverage` section. On the current code (1.1.1) the same case scored 1.0 in CI (run 39123111791) and in a local check. So one run on each side shows the case telling 1.0.0 from 1.1.x; SDD-6 was not run on 1.0.0. An earlier manual check (a headless `spec-creator` run on the rolled-back install) saw the same absence of the section without the eval harness.
 
 ## Not covered
 
@@ -60,7 +60,7 @@ Two criteria (SDD-1, SDD-2) were changed after a failure was seen. They were cha
 
 ## Cost
 
-About 5.9 USD was spent through OpenRouter on the runs above and the stable smoke run (0.92); the balance of the key is now too low to run more (the failed runs cost almost nothing; the two full runs 1.79 and 1.62; SDD-1 three runs 0.87; the last three cases 0.34; the stable smoke run 0.92, where the last two cases were refused for lack of credit). Local checks of the same cases on the author's own login are not included. A case costs 0.09 to 0.41 USD per run at default settings.
+About 5.9 USD was spent through OpenRouter on the runs above and the stable smoke run (0.92); the balance of the key is now too low to run more (the failed runs cost almost nothing; the two full runs 1.79 and 1.62; SDD-1 three runs 0.87; the last three cases 0.34; the stable smoke run 0.92, where the last two cases were refused for lack of credit). Local checks of the same cases on the author's own login are not included (they used the author's account for about 2 USD in total, plus 0.37 for the SDD-5 run on the stable code). A case costs 0.09 to 0.41 USD per run at default settings.
 
 ## Reproduce
 
