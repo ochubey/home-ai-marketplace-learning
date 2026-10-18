@@ -130,6 +130,9 @@ describe('evals workflow: cost control and the eval command', () => {
     assert.match(r, /--eval-dir "\$PLUGIN\/evals"/);
     assert.doesNotMatch(r, /claude plugin (marketplace add|install)/);
   });
+  it('caps the output tokens of a request so a gateway does not reserve the default maximum', () => {
+    assert.match(wf, /CLAUDE_CODE_MAX_OUTPUT_TOKENS: '32000'/);
+  });
   it('passes every cost-control flag', () => {
     const r = run();
     for (const re of [
