@@ -119,6 +119,10 @@ jobs:
       - name: Run the evals
         id: eval
         env:
+          # OpenRouter reserves credit for the largest answer a request may ask for. With the default
+          # output cap a request is refused (402) as soon as the balance falls below that reservation,
+          # even though a real answer costs a fraction of it.
+          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '32000'
           PLUGIN: ${{ inputs.plugin }}
           CASES: ${{ inputs.cases }}
           RUNS: ${{ inputs.runs }}
