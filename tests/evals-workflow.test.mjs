@@ -144,8 +144,9 @@ describe('evals workflow: cost control and the eval command', () => {
     assert.match(wf, /rsync -a --delete --exclude 'evals\/' /);
     assert.ok(wf.indexOf('Use the plugin code of that ref') < wf.indexOf('claude plugin eval'), 'overlay must happen before the eval');
   });
-  it('the summary names the plugin versions under test', () => {
-    const out = spawnSync('node', [SUMMARY, '/dev/stdin'], { input: JSON.stringify({ cases: [], suite: { plugins: [{ name: 'sdd-engineering', version: '1.0.0' }] } }), encoding: 'utf8' }).stdout;
+  it('the summary names the plugin versions under test', async () => {
+    const { renderSummary } = await import('../scripts/eval-summary.mjs');
+    const out = renderSummary({ cases: [], suite: { plugins: [{ name: 'sdd-engineering', version: '1.0.0' }] } }, { threshold: 0.8, exitCode: 0 });
     assert.match(out, /Plugins under test: sdd-engineering 1\.0\.0/);
   });
   it('passes every cost-control flag', () => {
