@@ -16,4 +16,6 @@ Or load the plugin into a session with `claude --plugin-dir ./plugins/engineerin
 | EPP-2 | positive | AC-43 | [epp-2-fastify-route/setup.md](epp-2-fastify-route/setup.md) | A paved-path skill (`engineering-paved-path:fastify-best-practices`) loads and the route declares a JSON Schema for its input and output. |
 | EPP-3 | negative | AC-44 | [epp-3-unrelated-prompt/setup.md](epp-3-unrelated-prompt/setup.md) | No `engineering-paved-path` skill loads for an unrelated prompt. |
 
+Status under `claude plugin eval`: all three cases load (valid frontmatter keys, one llm grader each). EPP-1 and EPP-3 need no fixture and run in the empty workspace. EPP-2 reads `app.ts`, which no scaffold creates yet, so it is not runnable until a `case.yaml` with a `scaffold_script` is added.
+
 How to judge by hand: in the session transcript, look for a Skill tool call naming the skill. A case passes only if its pass criterion holds. A failing negative case blocks the release.

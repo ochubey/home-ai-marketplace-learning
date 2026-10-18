@@ -1,0 +1,163 @@
+name: evals
+
+# Behavior evals run real model calls and cost money, so they start by hand only.
+# Never add pull_request, pull_request_target or schedule triggers here.
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: Plugin to evaluate
+        type: choice
+        required: true
+        default: sdd-engineering
+        options:
+          - sdd-engineering
+          - engineering-paved-path
+          - research-tools
+          - architecture-review
+      cases:
+        description: Case name glob (for example sdd-2-* or *)
+        type: string
+        required: true
+        default: '*'
+      runs:
+        description: Runs per case, 1 to 3
+        type: string
+        required: true
+        default: '1'
+      max_cost_usd:
+        description: Hard cost ceiling in USD, at most 5
+        type: string
+        required: true
+        default: '2'
+      threshold:
+        description: Pass mark for a case score, 0 to 1
+        type: string
+        required: true
+        default: '0.8'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals
+  cancel-in-progress: false
+
+jobs:
+  evals:
+    # The environment holds the secret, a required reviewer and the main-only branch rule.
+    environment: evals
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Validate the inputs
+        env:
+          PLUGIN: ${{ inputs.plugin }}
+          CASES: ${{ inputs.cases }}
+          RUNS: ${{ inputs.runs }}
+          MAX_COST_USD: ${{ inputs.max_cost_usd }}
+          THRESHOLD: ${{ inputs.threshold }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+          case "$PLUGIN" in
+            sdd-engineering|engineering-paved-path|research-tools|architecture-review) ;;
+            *) fail "plugin is not one of the four marketplace plugins" ;;
+          esac
+          [[ "$RUNS" =~ ^[1-3]$ ]] || fail "runs must be an integer from 1 to 3"
+          [[ "$MAX_COST_USD" =~ ^[0-9]{1,2}(\.[0-9]{1,2})?$ ]] || fail "max_cost_usd must be a plain number"
+          awk -v v="$MAX_COST_USD" 'BEGIN { exit !(v > 0 && v <= 5) }' || fail "max_cost_usd must be above 0 and <= 5"
+          [[ "$THRESHOLD" =~ ^(0(\.[0-9]{1,3})?|1(\.0{1,3})?)$ ]] || fail "threshold must be a number from 0 to 1"
+          [[ "$CASES" =~ ^[A-Za-z0-9_.*?-]{1,64}$ ]] || fail "cases may only hold letters, digits, _ . - and the glob characters * and ?"
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install Claude Code
+        # Pinned so scores stay comparable. No --ignore-scripts: the package links its native
+        # binary in a postinstall script, so the CLI does not start without it. No secret is
+        # in the environment of this step.
+        run: npm install -g @anthropic-ai/claude-code@2.1.302
+      - name: Set the credentials
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.EVAL_API_KEY }}
+          EVAL_BASE_URL: ${{ vars.EVAL_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+            echo "::error::The EVAL_API_KEY secret is empty or missing in the evals environment. Add it and run the workflow again."
+            exit 1
+          fi
+          case "$ANTHROPIC_API_KEY" in
+            *$'\n'*|*$'\r'*) echo "::error::The EVAL_API_KEY secret must be a single line."; exit 1 ;;
+          esac
+          echo "::add-mask::$ANTHROPIC_API_KEY"
+          if [ -n "${EVAL_BASE_URL:-}" ]; then
+            [[ "$EVAL_BASE_URL" =~ ^https://[A-Za-z0-9._:/-]+$ ]] || { echo "::error::EVAL_BASE_URL must be an https URL."; exit 1; }
+            {
+              echo "ANTHROPIC_BASE_URL=$EVAL_BASE_URL"
+              echo "ANTHROPIC_AUTH_TOKEN=$ANTHROPIC_API_KEY"
+              echo "ANTHROPIC_API_KEY="
+            } >> "$GITHUB_ENV"
+          else
+            echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> "$GITHUB_ENV"
+          fi
+      - name: Add the marketplace and install the plugin
+        env:
+          PLUGIN: ${{ inputs.plugin }}
+        run: |
+          set -euo pipefail
+          claude plugin marketplace add "$GITHUB_WORKSPACE"
+          claude plugin install "$PLUGIN@home-ai-marketplace-learning" --scope user
+      - name: Run the evals
+        id: eval
+        env:
+          PLUGIN: ${{ inputs.plugin }}
+          CASES: ${{ inputs.cases }}
+          RUNS: ${{ inputs.runs }}
+          MAX_COST_USD: ${{ inputs.max_cost_usd }}
+          THRESHOLD: ${{ inputs.threshold }}
+        run: |
+          set -uo pipefail
+          # --allow-tools is last because it takes a list. The grant is only what the sdd-engineering
+          # cases need: Write for spec-creator and implementer, Edit for implementer, and the one
+          # check command the implementer case runs. git commit, git push, WebFetch and WebSearch
+          # are not granted, so the negative cases still catch an attempt in the trace.
+          rc=0
+          claude plugin eval "$PLUGIN@home-ai-marketplace-learning" \
+            --case "$CASES" \
+            --runs "$RUNS" \
+            --ablation none \
+            --no-publish \
+            --trust-plugin \
+            --scaffold \
+            --max-cost-usd "$MAX_COST_USD" \
+            --threshold "$THRESHOLD" \
+            --judge-model haiku \
+            --json results.json \
+            --report report.html \
+            --output-dir out \
+            --allow-tools Write Edit "Bash(node --test:*)" || rc=$?
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          exit "$rc"
+      - name: Write the job summary
+        if: always()
+        env:
+          THRESHOLD: ${{ inputs.threshold }}
+          EXIT_CODE: ${{ steps.eval.outputs.exit_code }}
+        run: node scripts/eval-summary.mjs results.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: eval-results
+          path: |
+            results.json
+            report.html
+            out/
+          retention-days: 14
+          if-no-files-found: warn

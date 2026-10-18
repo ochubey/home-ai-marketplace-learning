@@ -1,6 +1,6 @@
 ---
 max_turns: 20
-allowed_tools: [Read, Glob, Grep, Agent]
+allowed_tools: [Read, Glob, Grep, Agent, Write]
 ---
 
 Use the sdd-engineering:spec-creator agent to write a spec for this feature request. The spec directory is specs/ and you may create it.

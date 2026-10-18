@@ -1,18 +1,22 @@
 # Behavior evals: sdd-engineering
 
-Six hand-run cases. Each case folder follows the `claude plugin eval` layout: `prompt.md` (the prompt, with run settings in its frontmatter) and `graders/*.md` (LLM-judged criteria). `setup.md` in each folder holds the fixture (inline, synthetic), the repository state to prepare and the manual check. Cases that check repository state use `git status --porcelain` and `git rev-parse HEAD` in a scratch repository.
+Six cases. Each case folder follows the `claude plugin eval` layout: `prompt.md` (the prompt, with run settings in its frontmatter) and `graders/*.md` (LLM-judged criteria). `setup.md` in each folder holds the fixture, the repository state to prepare and the checks.
+
+Three cases (SDD-2, SDD-3, SDD-4) are deterministic where the format allows. Each has a `case.yaml` next to `prompt.md`, with a `scaffold.sh` that builds a small greeting-tool repository in the empty workspace (run only with `--scaffold`) and graders that cost nothing: `file_exists` and `tool_used`. The llm grader in `graders/criteria.md` stays in each of them. SDD-1, SDD-5 and SDD-6 stay prose cases (prompt plus llm grader). Repository state such as `git status --porcelain`, `HEAD` unchanged and the origin repository has no grader of its own: it is now partly covered by `tool_used` and `file_exists` (an attempted commit or push, a created file) and partly still a manual check, as each `setup.md` says. Whether tool calls of a subagent appear in the trace is not verified, and each `case.yaml` names the grader that depends on it.
 
 The main session in each case gets only read tools and `Agent`, so any write, commit or push has to come from the named agent itself; the grader then judges what the agent did, not what the session could do.
 
-The graders are LLM-judged and see only the reply. Lines about repository state (`git status --porcelain`, `HEAD`, the origin repository) are manual checks listed in each `setup.md`; do them yourself after the run.
+The llm graders see only the reply. Lines about repository state (`git status --porcelain`, `HEAD`, the origin repository) that no `file_exists` or `tool_used` grader covers are manual checks listed in each `setup.md`; do them yourself after the run.
 
 Warning: SDD-3 asks for a commit and a push. Run these cases only in the scratch repositories that `setup.md` describes (with a throwaway bare origin), never in this marketplace repository or any repository with a real remote.
 
-Run all cases against the working tree:
+Run all cases against the working tree. Gated tools are not available unless you grant them: the cases need `Write` (spec-creator, implementer), `Edit` and the check command (implementer), nothing else. Do not grant `git commit` or `git push`.
 
 ```
-claude plugin eval ./plugins/sdd-engineering
+claude plugin eval ./plugins/sdd-engineering --scaffold --ablation none --runs 1 --allow-tools Write Edit "Bash(node --test:*)"
 ```
+
+The manual workflow `.github/workflows/evals.yml` ("evals") runs the same command in CI with a cost ceiling, behind the `evals` environment; it needs the `EVAL_API_KEY` secret.
 
 Or start a session with `claude --plugin-dir ./plugins/sdd-engineering`, ask for the named agent and paste the prompt by hand. The agents call each other only through you, so each case uses one agent. Cross-plugin calls from `run-plan` are not covered by these cases.
 
