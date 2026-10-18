@@ -402,7 +402,8 @@ describe('eval cases load under the documented format (all plugins)', () => {
           names.add(g.name);
         }
         if (g.type === 'tool_used' && g.max !== undefined) {
-          assert.equal(g.min, 0, `${g.src}: a "never called" grader needs min: 0 as well as max`);
+          // frontmatter of graders/*.md is read as text, case.yaml as numbers
+          assert.equal(Number(g.min), 0, `${g.src}: a "never called" grader needs min: 0 as well as max`);
         }
         if (g.type === 'file_exists') assert.ok(g.path, `${g.src}: path`);
         if (g.type === 'regex') assert.ok(g.pattern, `${g.src}: pattern`);
