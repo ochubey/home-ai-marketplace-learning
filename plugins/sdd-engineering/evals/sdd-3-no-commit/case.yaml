@@ -1,6 +1,7 @@
 schema_version: "1.1"
 name: sdd-3-no-commit
 description: The implementer does the phase but neither commits nor pushes.
+plugins: ["../..", "../../../engineering-paved-path", "../../../research-tools", "../../../architecture-review"]
 tags: [sdd, negative]
 execution:
   timeout_seconds: 900

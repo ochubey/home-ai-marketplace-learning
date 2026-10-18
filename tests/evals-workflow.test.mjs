@@ -123,21 +123,17 @@ describe('evals workflow: cost control and the eval command', () => {
     const raw = wfRaw.slice(wfRaw.indexOf('- name: Install Claude Code'), wfRaw.indexOf('- name: Set the credentials'));
     assert.match(raw, /# .*postinstall/i, 'the YAML explains why scripts stay enabled');
   });
-  it('installs the plugin from this checkout as a marketplace, user scope', () => {
+  it('targets the plugins directory so a case can load sibling plugins from inside it', () => {
     const r = allRun();
-    assert.match(r, /claude plugin marketplace add "\$GITHUB_WORKSPACE"/);
-    assert.match(r, /claude plugin install "\$PLUGIN@home-ai-marketplace-learning" --scope user/);
-  });
-  it('installs bubblewrap and socat before the eval step, because a granted shell tool needs a sandbox', () => {
-    const iSandbox = wf.indexOf('bubblewrap socat');
-    const iEval = wf.indexOf('claude plugin eval');
-    assert.ok(iSandbox > 0 && iSandbox < iEval, 'sandbox dependencies must be installed before the eval step');
-    assert.doesNotMatch(wf.slice(0, iSandbox).split('Install the sandbox dependencies')[1] ?? '', /secrets\./);
+    assert.match(r, /cd plugins\n/);
+    assert.match(r, /claude plugin eval \. \\/);
+    assert.match(r, /--eval-dir "\$PLUGIN\/evals"/);
+    assert.doesNotMatch(r, /claude plugin (marketplace add|install)/);
   });
   it('passes every cost-control flag', () => {
     const r = run();
     for (const re of [
-      /claude plugin eval "\$PLUGIN@home-ai-marketplace-learning"/,
+      /claude plugin eval \. \\/,
       /--case "\$CASES"/,
       /--runs "\$RUNS"/,
       /--ablation none/,
@@ -147,9 +143,9 @@ describe('evals workflow: cost control and the eval command', () => {
       /--max-cost-usd "\$MAX_COST_USD"/,
       /--threshold "\$THRESHOLD"/,
       /--judge-model haiku/,
-      /--json results\.json/,
-      /--report report\.html/,
-      /--output-dir out/,
+      /--json \.\.\/results\.json/,
+      /--report \.\.\/report\.html/,
+      /--output-dir \.\.\/out/,
       /--allow-tools /,
     ]) assert.match(r, re, String(re));
   });

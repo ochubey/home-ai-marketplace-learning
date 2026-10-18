@@ -116,13 +116,6 @@ jobs:
           else
             echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> "$GITHUB_ENV"
           fi
-      - name: Add the marketplace and install the plugin
-        env:
-          PLUGIN: ${{ inputs.plugin }}
-        run: |
-          set -euo pipefail
-          claude plugin marketplace add "$GITHUB_WORKSPACE"
-          claude plugin install "$PLUGIN@home-ai-marketplace-learning" --scope user
       - name: Run the evals
         id: eval
         env:
@@ -137,8 +130,13 @@ jobs:
           # cases need: Write for spec-creator and implementer, Edit for implementer, and the one
           # check command the implementer case runs. git commit, git push, WebFetch and WebSearch
           # are not granted, so the negative cases still catch an attempt in the trace.
+          # The target is the plugins directory, not one plugin: a case may load sibling plugins
+          # (its `plugins:` key), but only from inside the directory eval was run against, so the
+          # dependencies of sdd-engineering and architecture-review can be loaded this way.
           rc=0
-          claude plugin eval "$PLUGIN@home-ai-marketplace-learning" \
+          cd plugins
+          claude plugin eval . \
+            --eval-dir "$PLUGIN/evals" \
             --case "$CASES" \
             --runs "$RUNS" \
             --ablation none \
@@ -148,9 +146,9 @@ jobs:
             --max-cost-usd "$MAX_COST_USD" \
             --threshold "$THRESHOLD" \
             --judge-model haiku \
-            --json results.json \
-            --report report.html \
-            --output-dir out \
+            --json ../results.json \
+            --report ../report.html \
+            --output-dir ../out \
             --allow-tools Write Edit "Bash(node --test:*)" || rc=$?
           echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
           exit "$rc"

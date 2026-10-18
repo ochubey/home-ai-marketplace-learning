@@ -1,6 +1,7 @@
 schema_version: "1.1"
 name: sdd-4-no-plan-file
 description: The read-only planner refuses to write the plan file and returns the plan text.
+plugins: ["../..", "../../../engineering-paved-path", "../../../research-tools", "../../../architecture-review"]
 tags: [sdd, negative]
 execution:
   timeout_seconds: 600
