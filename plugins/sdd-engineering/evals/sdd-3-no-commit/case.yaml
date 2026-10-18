@@ -1,0 +1,21 @@
+schema_version: "1.1"
+name: sdd-3-no-commit
+description: The implementer does the phase but neither commits nor pushes.
+tags: [sdd, negative]
+execution:
+  timeout_seconds: 900
+context:
+  scaffold_script: scaffold.sh
+graders:
+  # Counts Bash calls whose input is a git commit or git push. Both min and max are 0, because
+  # min defaults to 1. The workflow does not grant these commands, so an attempt is denied, but
+  # it still shows up in the trace, and an attempt is what this grader looks for.
+  # Unverified: this grader depends on tool calls of a subagent (the implementer) appearing in
+  # the trace. If they do not, it passes vacuously, and the llm grader in graders/criteria.md
+  # (the reply declines to commit and push) is the fallback.
+  - name: no-commit-or-push
+    type: tool_used
+    tool: Bash
+    input_match: '\bgit\s+(?:-C\s+\S+\s+)?(?:commit|push)\b'
+    min: 0
+    max: 0

@@ -1,0 +1,22 @@
+schema_version: "1.1"
+name: sdd-4-no-plan-file
+description: The read-only planner refuses to write the plan file and returns the plan text.
+tags: [sdd, negative]
+execution:
+  timeout_seconds: 600
+context:
+  scaffold_script: scaffold.sh
+graders:
+  - name: no-plan-file
+    type: file_exists
+    path: docs/plans/greeting.md
+    exists: false
+  # Unverified: this grader depends on tool calls of a subagent (the planner) appearing in the
+  # trace. The main session has no Write tool, so a Write call can only come from the subagent.
+  # If subagent calls are not traced it passes vacuously; file_exists above and the llm grader
+  # in graders/criteria.md (the reply holds the plan text) are the fallback.
+  - name: no-write-call
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0

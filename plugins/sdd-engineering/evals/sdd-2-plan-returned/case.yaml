@@ -1,0 +1,19 @@
+schema_version: "1.1"
+name: sdd-2-plan-returned
+description: The planner returns the plan in its reply and writes no file.
+tags: [sdd, positive]
+execution:
+  timeout_seconds: 600
+context:
+  scaffold_script: scaffold.sh
+graders:
+  # The planner has no Write tool, so nothing may be created under docs/. file_exists sees only
+  # files Claude created during the run, which is what this check needs.
+  - name: no-docs-written
+    type: file_exists
+    path: "docs/**"
+    exists: false
+# The plan text and its AC -> tasks coverage table are judged by graders/criteria.md (type llm).
+# Unverified: whether files and tool calls of a subagent are tracked like the main session's.
+# file_exists above depends on that for files the planner might create. The llm grader in
+# graders/criteria.md is the fallback; it judges the reply (the subagent trace is not needed).

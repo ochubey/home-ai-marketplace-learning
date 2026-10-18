@@ -30,6 +30,9 @@ describe('plugin file invariants (AC-31, AC-35)', () => {
     const bad = [];
     for (const f of walk(PLUGINS_DIR)) {
       const r = rel(f);
+      // The one exception: an eval case may ship `scaffold.sh`, which builds its fixture and runs only
+      // when the operator passes --scaffold to `claude plugin eval` (checked in evals-workflow.test.mjs).
+      if (/^plugins\/[^/]+\/evals\/[^/]+\/scaffold\.sh$/.test(r)) continue;
       if (/\/hooks\//.test(r) || /\/commands\//.test(r) || path.basename(r) === '.mcp.json' || /\.(sh|py|js|mjs|cjs|ts)$/.test(r)) bad.push(r);
     }
     assert.deepEqual(bad, []);

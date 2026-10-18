@@ -2,28 +2,14 @@
 
 Positive case: an approved synthetic spec becomes a plan that is returned in the reply and written nowhere.
 
-Fixture: create a scratch git repository with the two files below and commit them. Start a session there.
+Fixture: `scaffold.sh` (declared in `case.yaml`, run by `claude plugin eval --scaffold`) builds it in the empty workspace. By hand, run `bash scaffold.sh` in an empty scratch directory and start a session there. It creates:
 
-`greet.js`:
+- `greet.js` (prints `Hello, <name>!` or `Hello, world!`) and `README.md`;
+- `specs/01-greeting.md` with `Spec ID: SPEC-01`, `Status: approved` and three EARS criteria, AC-1 (a name is given), AC-2 (no name) and AC-3 (a name over 40 characters), each with a verification hint;
+- a git repository on `main` with one commit and a clean tree. There is no remote.
 
-```js
-const name = process.argv[2];
-console.log(`Hello, ${name ?? 'world'}!`);
-```
+Checks:
 
-`specs/01-greeting.md`:
-
-```md
-# Spec: Greeting
-Spec ID: SPEC-01
-Status: approved
-
-## Acceptance criteria (EARS)
-- AC-1 WHEN a name is given, the tool shall print "Hello, <name>!". Verify: run with a name and compare the output.
-- AC-2 WHEN no name is given, the tool shall print "Hello, world!". Verify: run without a name and compare the output.
-- AC-3 IF the name is longer than 40 characters, THEN the tool shall print an error and exit non-zero. Verify: run with 41 characters and check the exit code.
-```
-
-Run `git status --porcelain` after the run.
-
-Manual check: the output is empty, and the reply holds the plan text.
+- Automatic (`case.yaml`): `file_exists` on `docs/**` with `exists: false`, so no file under `docs/` was created. It only sees files Claude created during the run.
+- Automatic (`graders/criteria.md`, llm): the reply holds the plan with an AC -> tasks coverage table, and every task names an AC-ID and a test.
+- Manual: `git status --porcelain` is still empty after the run (`file_exists` does not see a modified tracked file or a file outside `docs/`). The workspace is a temporary directory; use `--keep-temp` to look at it.
