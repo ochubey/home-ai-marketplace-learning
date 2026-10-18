@@ -128,6 +128,12 @@ describe('evals workflow: cost control and the eval command', () => {
     assert.match(r, /claude plugin marketplace add "\$GITHUB_WORKSPACE"/);
     assert.match(r, /claude plugin install "\$PLUGIN@home-ai-marketplace-learning" --scope user/);
   });
+  it('installs bubblewrap and socat before the eval step, because a granted shell tool needs a sandbox', () => {
+    const iSandbox = wf.indexOf('bubblewrap socat');
+    const iEval = wf.indexOf('claude plugin eval');
+    assert.ok(iSandbox > 0 && iSandbox < iEval, 'sandbox dependencies must be installed before the eval step');
+    assert.doesNotMatch(wf.slice(0, iSandbox).split('Install the sandbox dependencies')[1] ?? '', /secrets\./);
+  });
   it('passes every cost-control flag', () => {
     const r = run();
     for (const re of [
