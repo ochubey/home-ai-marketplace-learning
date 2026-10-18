@@ -40,6 +40,20 @@ A review of the change found that one item, "no implementation details anywhere 
 
 "Within noise" means the min to max ranges of the two labels overlap. Quality: 3 of 5 runs passed.
 
+## Cost per successful workflow
+
+The cost of a run that does not produce a usable result is wasted, so the figure that matters is the total spent divided by the number of runs that passed the quality gate.
+
+| Variant | Runs | Passed | Total cost (USD) | Per successful workflow (USD) |
+|---|---|---|---|---|
+| Baseline (`a88c46a`) | 5 | 4 | 1.45 to 1.94 (derived) | 0.36 to 0.49 |
+| Prompt dedupe (`2744874`) | 5 | 3 | 1.96 | 0.65 |
+| Patch 1.1.1 (`fcf890b`) | 5 | 5 | 2.06 | 0.41 |
+
+The baseline total is a range because its raw files were lost: it is bounded by five runs at the cheapest (0.290) and at the dearest (0.388) run recorded in the summary. The other two totals are the sum of the saved per-run costs.
+
+Reading: the prompt dedupe made no cost difference per run, but fewer runs passed the gate, so each successful workflow cost more. The 1.1.1 patch fixed the cause of the failed runs (open markers in the spec) and brought the cost per successful workflow back to the baseline range, at about the same cost per run. The sample is five runs per variant, so a gap of this size between the baseline range and the dedupe row is suggestive, not proven; the dedupe row also includes a run graded by the older, weaker checker.
+
 ## What this shows
 
 - The optimization did not measurably change cost. This was expected: 14 words are about 20 tokens against a cached context of roughly 36,000 tokens per scenario. The sign of the median differences (cost up 8%) is not meaningful with five runs and ranges this wide.
