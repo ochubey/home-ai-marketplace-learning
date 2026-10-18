@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.1
+
+Patch release: one fix in `spec-creator`.
+
+### Fixed
+
+- `spec-creator` no longer leaves `[NEEDS CLARIFICATION]` markers for doubts the caller closed. When the caller states there are no open questions, no further edge cases, or that decisions are left to the agent, a doubt that does not change the requirements is decided with the recommended default and recorded as an assumption, with its reason, in an `Assumptions` list inside `## Open questions`. The marker stays for a genuine unknown the caller did not close, and the blocking `QUESTIONS` rule is unchanged.
+- Why: in the cost experiment `implementation-planner` correctly refused to plan a spec that still carried non-blocking markers although the caller had said there were no open questions.
+- Added eval SDD-6 (`sdd-6-closed-questions`); the eval seed now has six cases.
+
+### Compatibility
+
+- Patch because it narrows when a marker is written and changes no interface. Existing specs stay valid.
+- No change to tools, models, dependencies or the other agents.
+
 ## 1.1.0
 
 Minor release: one behavior change in `spec-creator`.

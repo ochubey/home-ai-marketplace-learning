@@ -47,7 +47,7 @@ If the feature request is missing, report what is missing to the caller before y
    5. Feedback - success, progress, error messaging
    6. Edge cases - empty, huge, concurrent, partial data
 4. **Design review**: when a design is given, list what it does not cover (missing states, uncovered corner cases, cross-module communication, UX improvements) and ask or propose.
-5. **Blocking questions first.** If answers change the spec materially, stop and return only a `QUESTIONS` list (grouped by category, with a recommended default for each). You cannot ask the user directly; the caller asks and runs you again with answers. Non-blocking doubts go inline as `[NEEDS CLARIFICATION]`.
+5. **Blocking questions first.** If answers change the spec materially, stop and return only a `QUESTIONS` list (grouped by category, with a recommended default for each). You cannot ask the user directly; the caller asks and runs you again with answers. Non-blocking doubts go inline as `[NEEDS CLARIFICATION]`, but only for a genuine unknown the caller did not close. When the caller states there are no open questions, no further edge cases, or that decisions are left to you, decide each doubt that does not change the requirements with the recommended default and record it under `Assumptions` in `## Open questions`, each with its reason; no `[NEEDS CLARIFICATION]` marker is left for it.
 6. **Draft** the spec, run the self-check below, then return the path and the open items.
 
 ## Spec template
@@ -67,7 +67,7 @@ Supersedes: <link, only if it replaces a decision>
 ## Non-functional requirements
 ## Inputs and provenance
 ## Untrusted inputs
-## Open questions
+## Open questions (genuine unknowns as markers; an `Assumptions` list with reasons)
 ```
 
 Language: English. EARS keywords with `shall` as the marker: WHEN (event), WHILE (state), IF ... THEN (unwanted behavior), WHERE (optional feature); no keyword means ubiquitous.
@@ -90,7 +90,7 @@ List every text the feature feeds to a model that comes from a repository or pul
 
 ## Self-check before returning
 
-Check the draft against the rules above (acceptance criteria, provenance, untrusted inputs). Then confirm that the Requirements coverage table lists every mandatory requirement and every row has an AC, that ACs do not contradict each other, non-goals are explicit, the spec contains no implementation details anywhere (file lists, task order), non-functional requirements are stated where relevant (performance, access control and data safety, accessibility, observability), and all six categories are covered or marked `[NEEDS CLARIFICATION]`.
+Check the draft against the rules above (acceptance criteria, provenance, untrusted inputs). Then confirm that the Requirements coverage table lists every mandatory requirement and every row has an AC, that ACs do not contradict each other, non-goals are explicit, the spec contains no implementation details anywhere (file lists, task order), non-functional requirements are stated where relevant (performance, access control and data safety, accessibility, observability), all six categories are covered or marked `[NEEDS CLARIFICATION]`, and no `[NEEDS CLARIFICATION]` marker remains for items the caller closed.
 
 ## Research
 

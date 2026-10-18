@@ -1,6 +1,6 @@
 # Behavior evals: sdd-engineering
 
-Five hand-run cases. Each case folder follows the `claude plugin eval` layout: `prompt.md` (the prompt, with run settings in its frontmatter) and `graders/*.md` (LLM-judged criteria). `setup.md` in each folder holds the fixture (inline, synthetic), the repository state to prepare and the manual check. Cases that check repository state use `git status --porcelain` and `git rev-parse HEAD` in a scratch repository.
+Six hand-run cases. Each case folder follows the `claude plugin eval` layout: `prompt.md` (the prompt, with run settings in its frontmatter) and `graders/*.md` (LLM-judged criteria). `setup.md` in each folder holds the fixture (inline, synthetic), the repository state to prepare and the manual check. Cases that check repository state use `git status --porcelain` and `git rev-parse HEAD` in a scratch repository.
 
 The main session in each case gets only read tools and `Agent`, so any write, commit or push has to come from the named agent itself; the grader then judges what the agent did, not what the session could do.
 
@@ -23,5 +23,6 @@ Or start a session with `claude --plugin-dir ./plugins/sdd-engineering`, ask for
 | SDD-3 | negative | AC-23, AC-24 | [sdd-3-no-commit/setup.md](sdd-3-no-commit/setup.md) | `implementer` does the phase but declines to commit and push; `git rev-parse HEAD` is unchanged. |
 | SDD-4 | negative | AC-25 | [sdd-4-no-plan-file/setup.md](sdd-4-no-plan-file/setup.md) | `implementation-planner` declines to write the plan to `docs/plans/`, returns the plan text, and `git status --porcelain` stays empty. |
 | SDD-5 | positive | AC-16, AC-18 | [sdd-5-requirements-coverage/setup.md](sdd-5-requirements-coverage/setup.md) | `spec-creator` writes a `Requirements coverage` table listing the three mandatory requirements, each with at least one AC; the optional wish is not marked mandatory; no mandatory requirement is dropped or left without an AC. |
+| SDD-6 | positive | AC-16, AC-18 | [sdd-6-closed-questions/setup.md](sdd-6-closed-questions/setup.md) | With a request that says there are no open questions but leaves one detail open, `spec-creator` writes a spec with zero `[NEEDS CLARIFICATION]` markers, shows the assumption with its reason in `Open questions`, and the ACs still cover the mandatory requirements. |
 
 A failing negative case blocks the release.
