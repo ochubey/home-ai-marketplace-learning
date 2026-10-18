@@ -58,9 +58,9 @@ describe('evals workflow: trigger and permissions', () => {
     assert.doesNotMatch(wf, /^\s*workflow_run:/m);
     assert.deepEqual([...on.matchAll(/^ {2}([a-z_]+):/gm)].map((m) => m[1]), ['workflow_dispatch']);
   });
-  it('declares the five inputs with the documented defaults', () => {
+  it('declares the six inputs with the documented defaults', () => {
     const inputs = wf.slice(wf.indexOf('inputs:'), wf.indexOf('\npermissions:'));
-    assert.deepEqual([...inputs.matchAll(/^ {6}([a-z_]+):/gm)].map((m) => m[1]), ['plugin', 'cases', 'runs', 'max_cost_usd', 'threshold']);
+    assert.deepEqual([...inputs.matchAll(/^ {6}([a-z_]+):/gm)].map((m) => m[1]), ['plugin', 'cases', 'runs', 'max_cost_usd', 'threshold', 'plugin_ref']);
     assert.match(inputs, /plugin:[\s\S]*?type: choice/);
     for (const p of ['sdd-engineering', 'engineering-paved-path', 'research-tools', 'architecture-review']) {
       assert.match(inputs, new RegExp(`- ${p}\\b`), p);
@@ -69,6 +69,7 @@ describe('evals workflow: trigger and permissions', () => {
     assert.match(inputs, /runs:[\s\S]*?default: '1'/);
     assert.match(inputs, /max_cost_usd:[\s\S]*?default: '2'/);
     assert.match(inputs, /threshold:[\s\S]*?default: '0\.8'/);
+    assert.match(inputs, /plugin_ref:[\s\S]*?required: false[\s\S]*?default: ''/);
   });
   it('top-level permissions are contents: read and nothing else', () => {
     const block = wf.slice(wf.indexOf('\npermissions:'), wf.indexOf('\nconcurrency:') > 0 ? wf.indexOf('\nconcurrency:') : wf.indexOf('\njobs:'));
@@ -107,8 +108,10 @@ describe('evals workflow: pinned actions', () => {
       assert.match(m[2], /^ # v\d+(\.\d+)*$/, m[1]);
     }
   });
-  it('checkout does not persist credentials; node 22', () => {
-    assert.match(step('actions/checkout'), /persist-credentials: false/);
+  it('every checkout step does not persist credentials; node 22', () => {
+    const parts = wf.split(/^\s{6}- name:/m).slice(1).filter((p) => p.includes('actions/checkout'));
+    assert.equal(parts.length, 2, 'the repository checkout and the optional checkout of another ref');
+    for (const p of parts) assert.match(p, /persist-credentials: false/);
     assert.match(step('actions/setup-node'), /node-version: 22\b/);
   });
 });
@@ -132,6 +135,18 @@ describe('evals workflow: cost control and the eval command', () => {
   });
   it('caps the output tokens of a request so a gateway does not reserve the default maximum', () => {
     assert.match(wf, /CLAUDE_CODE_MAX_OUTPUT_TOKENS: '32000'/);
+  });
+  it('can evaluate the plugin code of another ref while the cases stay on the current branch', () => {
+    assert.match(wf, /plugin_ref:/);
+    assert.match(wf, /PLUGIN_REF: \$\{\{ inputs\.plugin_ref \}\}/);
+    assert.match(wf, /PLUGIN_REF" =~ \^\[A-Za-z0-9\._\/-\]\{1,64\}\$/);
+    assert.match(wf, /ref: \$\{\{ inputs\.plugin_ref \}\}\n\s+path: plugin-ref\n\s+persist-credentials: false/);
+    assert.match(wf, /rsync -a --delete --exclude 'evals\/' /);
+    assert.ok(wf.indexOf('Use the plugin code of that ref') < wf.indexOf('claude plugin eval'), 'overlay must happen before the eval');
+  });
+  it('the summary names the plugin versions under test', () => {
+    const out = spawnSync('node', [SUMMARY, '/dev/stdin'], { input: JSON.stringify({ cases: [], suite: { plugins: [{ name: 'sdd-engineering', version: '1.0.0' }] } }), encoding: 'utf8' }).stdout;
+    assert.match(out, /Plugins under test: sdd-engineering 1\.0\.0/);
   });
   it('passes every cost-control flag', () => {
     const r = run();
