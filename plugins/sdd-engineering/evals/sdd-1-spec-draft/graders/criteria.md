@@ -5,7 +5,7 @@ weight: 1
 
 The response passes only if all of the following hold:
 
-- Exactly one new file exists under `specs/`, named `NN-<kebab-feature>.md`, with `Spec ID: SPEC-NN`; no other file was created or changed.
+- The reply names exactly one new spec file under `specs/`, named `NN-<kebab-feature>.md`, and the spec text says `Spec ID: SPEC-NN`.
 - The acceptance criteria are written in English EARS form with `shall`, including an IF ... THEN criterion for the name that is too long.
 - Every acceptance criterion has a verification hint.
 - The spec has provenance tags and an "Untrusted inputs" section.
