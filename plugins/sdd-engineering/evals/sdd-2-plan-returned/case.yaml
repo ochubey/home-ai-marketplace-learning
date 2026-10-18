@@ -1,6 +1,7 @@
 schema_version: "1.1"
 name: sdd-2-plan-returned
 description: The planner returns the plan in its reply and writes no file.
+plugins: ["../..", "../../../engineering-paved-path", "../../../research-tools", "../../../architecture-review"]
 tags: [sdd, positive]
 execution:
   timeout_seconds: 600
