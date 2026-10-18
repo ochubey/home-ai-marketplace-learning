@@ -16,7 +16,22 @@ Behavior evals of the plugins, run on GitHub Actions with `claude plugin eval` (
 | engineering-paved-path | EPP-3 unrelated prompt | negative | passed | 39129356406 |
 | research-tools | RT-2 vague request | negative | passed | 39130312702 |
 
-Nine cases of the seventeen written have a recorded passing run. The clean full run of the six sdd-engineering cases first ended with five of six (SDD-1 failed); after the criterion fix described below SDD-1 was run three times and passed each time. The other cases were run once.
+Nine cases of the seventeen written have a recorded passing run on the current code; SDD-1 to SDD-4 also have one on the 1.0.0 code of the stable channel. The clean full run of the six sdd-engineering cases first ended with five of six (SDD-1 failed); after the criterion fix described below SDD-1 was run three times and passed each time. The other cases were run once.
+
+## Rollback smoke eval (stable channel, 1.0.0)
+
+Run 39131867105: the workflow input `plugin_ref=stable` replaced the code of every plugin by the code of the `stable` branch (sdd-engineering 1.0.0, engineering-paved-path 1.1.0, research-tools 1.0.0, architecture-review 1.0.0; recorded in `results.json` under `suite.plugins` and in the Job Summary line `Plugins under test`) and ran the six `sdd-*` cases, whose files stay those of `main`.
+
+| Case | Result on 1.0.0 |
+|---|---|
+| SDD-1 spec draft | passed |
+| SDD-2 plan returned | passed |
+| SDD-3 no commit | passed |
+| SDD-4 no plan file | passed |
+| SDD-5 requirements coverage | not evaluated: API error 402, no credits left |
+| SDD-6 closed questions | not evaluated: API error 402, no credits left |
+
+SDD-1 to SDD-4 are the smoke set of the rollback: they pass on the rolled-back 1.0.0 code. SDD-5 and SDD-6 test behavior added in 1.1.0 and 1.1.1; the plan was to show that they fail on 1.0.0 (so the evals tell the versions apart), but the credit ran out before they ran, so that contrast is **not shown**. A manual check made earlier (a headless `spec-creator` run on the rolled-back install) found no `Requirements coverage` section in the spec, which is the same observation without the eval harness.
 
 ## Not covered
 
@@ -45,7 +60,7 @@ Two criteria (SDD-1, SDD-2) were changed after a failure was seen. They were cha
 
 ## Cost
 
-About 5.0 USD was spent through OpenRouter on the runs above (the failed runs cost almost nothing; the two full runs 1.79 and 1.62; SDD-1 three runs 0.87; the last three cases 0.34). Local checks of the same cases on the author's own login are not included. A case costs 0.09 to 0.41 USD per run at default settings.
+About 5.9 USD was spent through OpenRouter on the runs above and the stable smoke run (0.92); the balance of the key is now too low to run more (the failed runs cost almost nothing; the two full runs 1.79 and 1.62; SDD-1 three runs 0.87; the last three cases 0.34; the stable smoke run 0.92, where the last two cases were refused for lack of credit). Local checks of the same cases on the author's own login are not included. A case costs 0.09 to 0.41 USD per run at default settings.
 
 ## Reproduce
 
