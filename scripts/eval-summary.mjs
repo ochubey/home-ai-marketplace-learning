@@ -72,6 +72,10 @@ export function renderSummary(result, { threshold = 0.8, exitCode } = {}) {
   if (secs !== null) totals.push(`${Math.round(secs)} s`);
   if (result?.claudeVersion) totals.push(`Claude Code ${cell(result.claudeVersion)}`);
   out.push(`${totals.join(' | ')}`, '');
+  const plugins = Array.isArray(result?.suite?.plugins) ? result.suite.plugins : [];
+  if (plugins.length) {
+    out.push(`Plugins under test: ${plugins.map((pl) => `${cell(pl?.name ?? '?')} ${cell(pl?.version ?? '?')}`).join(', ')}`, '');
+  }
   const withErrors = rows.filter((r) => r.errors.length);
   if (withErrors.length) {
     out.push('### Run errors', '');
