@@ -82,6 +82,16 @@ jobs:
         # binary in a postinstall script, so the CLI does not start without it. No secret is
         # in the environment of this step.
         run: npm install -g @anthropic-ai/claude-code@2.1.302
+      - name: Install the sandbox dependencies
+        # Claude Code refuses to run a shell tool without a working sandbox. The Linux sandbox needs
+        # bubblewrap and socat. Ubuntu 24.04 also restricts unprivileged user namespaces, which bubblewrap
+        # uses, so that restriction is lifted for this one-off runner. No secret is in this step.
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bubblewrap socat
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          bwrap --ro-bind / / --unshare-user true && echo "bubblewrap works"
       - name: Set the credentials
         env:
           ANTHROPIC_API_KEY: ${{ secrets.EVAL_API_KEY }}
